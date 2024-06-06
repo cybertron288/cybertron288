@@ -1,7 +1,7 @@
 ## Hi there 👋
 ## I'm Ravi Patel
 
-<p><img src="https://github-readme-stats.vercel.app/api?username=mokkapps&amp;show_icons=true" alt="GitHub Stats"></p>
+<p><img src="https://github-readme-stats.vercel.app/api?username=cybertron288&amp;show_icons=true" alt="GitHub Stats"></p>
 
 <!--
 **cybertron288/cybertron288** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
