@@ -3,7 +3,9 @@
 
 <p><img src="https://github-readme-stats.vercel.app/api?username=cybertron288&amp;show_icons=true" alt="GitHub Stats"></p>
 
+[![Summary widget](https://cr-ss-service.azurewebsites.net/api/ScreenShot?widget=summary&username=rafnixg&badges=3&show-avatar=true&branding=false)](https://profile.codersrank.io/user/cybertron288)
 ![Metrics](https://metrics.lecoq.io/cybertron288?template=classic&habits=1&repositories=1&starlists=1&achievements=1&gists=1&posts=1&base=header%2C%20activity%2C%20community%2C%20repositories%2C%20metadata&base.indepth=false&base.hireable=false&base.skip=false&repositories.batch=100&repositories.forks=false&repositories.affiliations=owner&habits=false&habits.from=200&habits.days=14&habits.facts=true&habits.charts=false&habits.charts.type=classic&habits.trim=false&habits.languages.limit=8&habits.languages.threshold=0%25&repositories=false&repositories.pinned=0&repositories.starred=0&repositories.random=0&repositories.order=featured%2C%20pinned%2C%20starred%2C%20random&starlists=false&starlists.limit=2&starlists.limit.repositories=2&starlists.languages=false&starlists.limit.languages=8&starlists.shuffle.repositories=true&achievements=false&achievements.threshold=C&achievements.secrets=true&achievements.display=detailed&achievements.limit=0&gists=false&posts=false&posts.source=dev.to&posts.user=rafnixg&posts.descriptions=false&posts.covers=true&posts.limit=6&config.timezone=America%2FLima)
+
 
 <!--
 **cybertron288/cybertron288** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
