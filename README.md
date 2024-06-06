@@ -3,7 +3,7 @@
 
 <p><img src="https://github-readme-stats.vercel.app/api?username=cybertron288&amp;show_icons=true" alt="GitHub Stats"></p>
 
-[![Summary widget](https://cr-ss-service.azurewebsites.net/api/ScreenShot?widget=summary&username=cybertron288&badges=3&show-avatar=true&branding=false)](https://profile.codersrank.io/user/cybertron288)
+
 
 
 <!--
