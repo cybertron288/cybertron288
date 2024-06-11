@@ -2,7 +2,7 @@
 ## I'm Ravi Patel
 
 <br>
-<div style="display: flex;">
+<div style="display: flex; gap: 10px;">
   <img src="https://streak-stats.demolab.com?user=cybertron288&theme=radical" width="49%" alt="streaks graph" />
   <img src="https://github-readme-stats.vercel.app/api?username=cybertron288&theme=radical&show_icons=true&count_private=true" width="49%" alt="stats graph" />
 </div> <br>
