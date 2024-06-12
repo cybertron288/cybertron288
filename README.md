@@ -2,7 +2,7 @@
 ## I'm Ravi Patel
 
 <br>
-<div style="display: flex; justify-content: center;>
+<div style="display: flex; justify-content: center;">
   <img src="https://streak-stats.demolab.com?user=cybertron288&theme=merko" width="49%" alt="streaks graph" />
 </div>
 <div style="display: flex; gap: 10px;">
