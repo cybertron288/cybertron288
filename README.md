@@ -3,10 +3,11 @@
 
 <br>
 <div style="display: flex; justify-content: center;">
-  <img src="https://streak-stats.demolab.com?user=cybertron288&theme=merko" alt="streaks graph" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=cybertron288&hide_progress=true&theme=merko" alt="" />
 </div>
 <div style="display: flex; gap: 10px;">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=cybertron288&hide_progress=true&theme=merko" alt="stats graph" />
+  
+  <img src="https://streak-stats.demolab.com?user=cybertron288&theme=merko" alt="streaks graph" />
   <img src="https://github-readme-stats.vercel.app/api?username=cybertron288&theme=merko&show_icons=true&count_private=true"  alt="stats graph" /><br>
 </div>
 
