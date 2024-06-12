@@ -5,6 +5,7 @@
 <div style="display: flex; justify-content: center;">
   <img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=cybertron288&hide_progress=true&theme=merko" alt="" />
 </div>
+<br>
 <div style="display: flex; gap: 10px;">
   
   <img src="https://streak-stats.demolab.com?user=cybertron288&theme=merko" alt="streaks graph" />
