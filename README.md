@@ -4,8 +4,7 @@
 <br>
 <div style="display: flex; gap: 10px;">
   <img src="https://streak-stats.demolab.com?user=cybertron288&theme=merko" width="49%" alt="streaks graph" />
-  ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=anuraghazra&hide_progress=true)
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=cybertron288&hide_progress=true" width="49%" alt="stats graph" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=cybertron288&hide_progress=true&theme=merko" width="49%" alt="stats graph" />
 </div>
 <img src="https://github-readme-stats.vercel.app/api?username=cybertron288&theme=merko&show_icons=true&count_private=true" width="49%" alt="stats graph" /><br>
 
