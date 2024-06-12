@@ -3,7 +3,7 @@
 
 <br>
 <div style="display: flex; justify-content: center;">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=cybertron288&hide_progress=true&theme=merko" alt="" />
+  <img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=cybertron288&hide_progress=true&theme=merko" alt="" />
 </div>
 <div style="display: flex; gap: 10px;">
   
