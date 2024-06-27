@@ -1,4 +1,4 @@
-## Hi there 👋
+## Hi there 👋, I'm Ravi, the Frontend Spider 🕷️. I'm passionate about crafting accessible and visually appealing UIs using modern JavaScript frameworks like React and Next.js 🌟.
 
 <br>
 
