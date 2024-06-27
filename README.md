@@ -1,4 +1,5 @@
-## Hi there 👋, I'm Ravi, the Frontend Spider 🕷️. I'm passionate about crafting accessible and visually appealing UIs using modern JavaScript frameworks like React and Next.js 🌟.
+## <div align="center"> Hi there 👋, I'm Ravi,</div> 
+## The Frontend Spider 🕷️. I'm passionate about crafting accessible and visually appealing UIs. React is my go-to tool for creating UI experiences 🌟.
 
 <br>
 
