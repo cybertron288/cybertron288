@@ -1,4 +1,4 @@
-## <div align="center"> Hi there 👋, I'm Ravi,</div> 
+## <div align="center"> Hi there 👋, I'm Ravi</div> 
 ## The Frontend Spider 🕷️. I'm passionate about crafting accessible and visually appealing UIs. React is my go-to tool for creating UI experiences 🌟.
 
 <br>
