@@ -1,7 +1,4 @@
-## <div align="center"> Hi there 👋, I'm Ravi</div> 
-## The Frontend Spider 🕷️.
-
- Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, Gujarat. I hold a B.Tech in Information and Communication Technilogy from the DA-IICT, Gandhinagar. I'm passionate about crafting accessible and visually appealing UIs. React is my go-to tool for creating UI experiences 🌟.
+Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, Gujarat. I hold a B.Tech in Information and Communication Technilogy from the DA-IICT, Gandhinagar. I'm passionate about crafting accessible and visually appealing UIs. React is my go-to tool for creating UI experiences 🌟.
 
 <br>
 
