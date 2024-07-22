@@ -50,12 +50,12 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
         <img src="https://skillicons.dev/icons?i=figma" width="40" height="40" alt="PostgreSQL" />
         <br>Figma
       </td>
+    </tr>
+    <tr>
       <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=vercel" width="40" height="40" alt="PostgreSQL" />
         <br>Vercel
       </td>
-    </tr>
-    <tr>
       <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=github" width="40" height="40" alt="PostgreSQL" />
         <br>Github
@@ -88,12 +88,12 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
         <img src="https://skillicons.dev/icons?i=npm" width="40" height="40" alt="PostgreSQL" />
         <br>NPM
       </td>
-      <td align="center" width="96">
+    </tr>
+    <tr>
+     <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=postman" width="40" height="40" alt="PostgreSQL" />
         <br>Postman
       </td>
-    </tr>
-    <tr>
       <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=postgres" width="40" height="40" alt="PostgreSQL" />
         <br>PostgreSQL
