@@ -136,7 +136,7 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
 
 <p align="center">
 <a href="https://git.io/streak-stats">
-<img src="https://streak-stats.demolab.com?user=cybertron288&theme=tokyonight&hide_border=true&border_radius=&date_format=n%2Fj%5B%2FY%5D&card_width=1000&card_height=200" alt="GitHub Streak" />
+<img src="https://streak-stats.demolab.com?user=cybertron288&theme=tokyonight&hide_border=true&border_radius=&date_format=n%2Fj%5B%2FY%5D&card_width=1000&card_height=200&background=EBEBEB00" alt="GitHub Streak" />
 </a>
 </p>
 
