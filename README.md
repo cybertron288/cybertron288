@@ -42,7 +42,6 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
         <img src="https://skillicons.dev/icons?i=vite" width="40" height="40" alt="PostgreSQL" />
         <br>Vite
       </td>
-      
       <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=tailwind" width="40" height="40" alt="PostgreSQL" />
         <br>Tailwind
@@ -51,13 +50,10 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
         <img src="https://skillicons.dev/icons?i=figma" width="40" height="40" alt="PostgreSQL" />
         <br>Figma
       </td>
-
       <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=vercel" width="40" height="40" alt="PostgreSQL" />
         <br>Vercel
       </td>
-      
-      
     </tr>
     <tr>
       <td align="center" width="96">
@@ -118,8 +114,6 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
         <img src="https://skillicons.dev/icons?i=git" width="40" height="40" alt="PostgreSQL" />
         <br>Git
       </td>
-      
-
       <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=bootstrap" width="40" height="40" alt="PostgreSQL" />
         <br>Bootstrap
@@ -132,10 +126,9 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
         <img src="https://skillicons.dev/icons?i=webpack" width="40" height="40" alt="PostgreSQL" />
         <br>WebPack
       </td>
-     
     </tr>
   </table>
-  </div>
+</div>
 
 ---
 
