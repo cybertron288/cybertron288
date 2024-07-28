@@ -134,13 +134,7 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
 
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" alt="Rocket" width="30" height="30" /> GitHub Stats
 
-<p align="center">
-<a href="https://git.io/streak-stats">
-<img src="https://streak-stats.demolab.com?user=cybertron288&theme=tokyonight&hide_border=true&border_radius=&date_format=n%2Fj%5B%2FY%5D&card_width=1000&card_height=200&background=EBEBEB00" alt="GitHub Streak" />
-</a>
-</p>
 
----
 
 <div style="display: flex; width: 100%;">
   <a href="https://github.com/cybertron288" style="flex: 1; margin-right: 10px;">
@@ -153,11 +147,7 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
 
 ---
 
-<div style="width: 80%; margin-bottom: 40px;">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=cybertron288&radius=16&theme=tokyo-night&area=true&order=5&hide_title=true&bg_color=0D1117&color=9370db&line=8660d6&point=C3C3E5&area_color=D3BBDD&hide_border=true" style="width: 100%; height: auto;" alt="Contribution Graph" />
-</div>
 
----
 
 
 
