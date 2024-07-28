@@ -136,7 +136,7 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
 
 
 
-<div style="display: flex; width: 100%;">
+<div style="display: flex; width: 100%; justify-content: center;">
   <a href="https://github.com/cybertron288" style="flex: 1; margin-right: 10px;">
     <img height="190" src="https://github-readme-stats.vercel.app/api?username=cybertron288&card_width=200&bg_color=0D1117&text_color=ffffff&icon_color=a06cd5&title_color=9370db&show_icons=true&hide_border=true&hide_title=false" />
   </a>
