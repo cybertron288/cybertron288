@@ -5,7 +5,8 @@ Hi👋, I'm Ravi Patel, The Frontend Spider 🕷️. originally from the Surat, 
 
 ---
 
-## 🤝🏻 Connect with Me: <a href="https://www.linkedin.com/in/ravipatel8407/" target="_blank"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" style="vertical-align:center" /></a> <a href="mailto:ravi60353@gmail.com" target="_blank"><img alt="Email" src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" style="vertical-align:center" /></a>  <a href="https://github.com/cybertron288/cybertron288/blob/main/resume/Ravi_Resume_Web_frontend.docx.pdf" target="_blank"><img alt="Resume" src="https://img.shields.io/badge/CV/Resume-teal?style=for-the-badge&logo=microsoft-word&logoColor=white" style="vertical-align:center" />
+## 🤝🏻 Connect with Me: <a href="https://www.linkedin.com/in/ravipatel8407/" target="_blank"><img alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" style="vertical-align:center" /></a> <a href="mailto:ravi60353@gmail.com" target="_blank"><img alt="Email" src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" style="vertical-align:center" /></a>  <a href="https://github.com/cybertron288/cybertron288/blob/main/resume/Ravi_Resume_Web_frontend.docx.pdf" target="_blank">
+
 
 ---
 
