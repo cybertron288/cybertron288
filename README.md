@@ -48,46 +48,26 @@ Hi👋, I'm Ravi, The Frontend Spider 🕷️. originally from the Surat, Gujara
         <br>Tailwind
       </td>
       <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=figma" width="40" height="40" alt="PostgreSQL" />
-        <br>Figma
+        <img src="https://skillicons.dev/icons?i=ts" width="40" height="40" alt="PostgreSQL" />
+        <br>TypeScript
       </td>
     </tr>
     <tr>
       <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=vercel" width="40" height="40" alt="PostgreSQL" />
-        <br>Vercel
+        <img src="https://skillicons.dev/icons?i=figma" width="40" height="40" alt="PostgreSQL" />
+        <br>Figma
       </td>
       <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=github" width="40" height="40" alt="PostgreSQL" />
         <br>Github
       </td>
       <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=githubactions" width="40" height="40" alt="PostgreSQL" />
-        <br>Github Actions
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=jquery" width="40" height="40" alt="PostgreSQL" />
-        <br>Jquery
-      </td>
-      <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=md" width="40" height="40" alt="PostgreSQL" />
         <br>Markdown
       </td>
       <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=materialui" width="40" height="40" alt="PostgreSQL" />
-        <br>MUI
-      </td>
-      <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=nextjs" width="40" height="40" alt="PostgreSQL" />
         <br>NextJS
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=nodejs" width="40" height="40" alt="PostgreSQL" />
-        <br>NodeJS
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=npm" width="40" height="40" alt="PostgreSQL" />
-        <br>NPM
       </td>
     </tr>
     <tr>
@@ -106,10 +86,6 @@ Hi👋, I'm Ravi, The Frontend Spider 🕷️. originally from the Surat, Gujara
       <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=threejs" width="40" height="40" alt="PostgreSQL" />
         <br>ThreeJS
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=ts" width="40" height="40" alt="PostgreSQL" />
-        <br>TypeScript
       </td>
       <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=git" width="40" height="40" alt="PostgreSQL" />
