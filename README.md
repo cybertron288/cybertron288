@@ -32,14 +32,6 @@ Hi👋, I'm Ravi, The Frontend Spider 🕷️. originally from the Surat, Gujara
         <br>CSS
       </td>
       <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=redux" width="40" height="40" alt="PostgreSQL" />
-        <br>Redux
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=babel" width="40" height="40" alt="PostgreSQL" />
-        <br>Babel
-      </td>
-      <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=vite" width="40" height="40" alt="PostgreSQL" />
         <br>Vite
       </td>
@@ -54,6 +46,10 @@ Hi👋, I'm Ravi, The Frontend Spider 🕷️. originally from the Surat, Gujara
     </tr>
     <tr>
       <td align="center" width="96">
+        <img src="https://skillicons.dev/icons?i=nextjs" width="40" height="40" alt="PostgreSQL" />
+        <br>NextJS
+      </td>
+      <td align="center" width="96">
         <img src="https://skillicons.dev/icons?i=figma" width="40" height="40" alt="PostgreSQL" />
         <br>Figma
       </td>
@@ -66,8 +62,12 @@ Hi👋, I'm Ravi, The Frontend Spider 🕷️. originally from the Surat, Gujara
         <br>Markdown
       </td>
       <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=nextjs" width="40" height="40" alt="PostgreSQL" />
-        <br>NextJS
+        <img src="https://skillicons.dev/icons?i=redux" width="40" height="40" alt="PostgreSQL" />
+        <br>Redux
+      </td>
+      <td align="center" width="96">
+        <img src="https://skillicons.dev/icons?i=babel" width="40" height="40" alt="PostgreSQL" />
+        <br>Babel
       </td>
     </tr>
     <tr>
