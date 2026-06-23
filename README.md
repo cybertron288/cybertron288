@@ -10,129 +10,14 @@ Hi👋, I'm Ravi, The Frontend Spider 🕷️. originally from the Surat, Gujara
 
 ---
 
-## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Hammer%20and%20Wrench.png" alt="Hammer and Wrench" width="30" height="30" /> **Languages and Tools** 
-
-<div style="display: flex; align-items: flex-start; justify-content: center">
-  <table align="center">
-    <tr>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=react" width="40" height="40" alt="PostgreSQL" />
-        <br>React
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=js" width="40" height="40" alt="PostgreSQL" />
-        <br>JavaScript
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=html" width="40" height="40" alt="PostgreSQL" />
-        <br>HTML
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=css" width="40" height="40" alt="PostgreSQL" />
-        <br>CSS
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=vite" width="40" height="40" alt="PostgreSQL" />
-        <br>Vite
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=tailwind" width="40" height="40" alt="PostgreSQL" />
-        <br>Tailwind
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=ts" width="40" height="40" alt="PostgreSQL" />
-        <br>TypeScript
-      </td>
-    </tr>
-    <tr>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=nextjs" width="40" height="40" alt="PostgreSQL" />
-        <br>NextJS
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=figma" width="40" height="40" alt="PostgreSQL" />
-        <br>Figma
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=github" width="40" height="40" alt="PostgreSQL" />
-        <br>Github
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=md" width="40" height="40" alt="PostgreSQL" />
-        <br>Markdown
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=redux" width="40" height="40" alt="PostgreSQL" />
-        <br>Redux
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=babel" width="40" height="40" alt="PostgreSQL" />
-        <br>Babel
-      </td>
-    </tr>
-    <tr>
-     <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=postman" width="40" height="40" alt="PostgreSQL" />
-        <br>Postman
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=postgres" width="40" height="40" alt="PostgreSQL" />
-        <br>PostgreSQL
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=express" width="40" height="40" alt="PostgreSQL" />
-        <br>Express
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=threejs" width="40" height="40" alt="PostgreSQL" />
-        <br>ThreeJS
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=git" width="40" height="40" alt="PostgreSQL" />
-        <br>Git
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=bootstrap" width="40" height="40" alt="PostgreSQL" />
-        <br>Bootstrap
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=vscodium" width="40" height="40" alt="PostgreSQL" />
-        <br>VSCodium
-      </td>
-      <td align="center" width="96">
-        <img src="https://skillicons.dev/icons?i=webpack" width="40" height="40" alt="PostgreSQL" />
-        <br>WebPack
-      </td>
-    </tr>
-  </table>
-</div>
-
----
-
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" alt="Rocket" width="30" height="30" /> GitHub Stats
 
 
 
 <div style="display: flex; width: 100%; justify-content: center;">
-  <a href="https://github.com/cybertron288" style="flex: 1; margin-right: 10px;">
-    <img height="190" src="https://github-readme-stats.vercel.app/api?username=cybertron288&card_width=200&bg_color=0D1117&text_color=ffffff&icon_color=a06cd5&title_color=9370db&show_icons=true&hide_border=true&hide_title=false" />
-  </a>
   <a href="https://github.com/cybertron288" style="flex: 1;">
     <img height="190" src="https://github-readme-stats.vercel.app/api/top-langs/?username=cybertron288&layout=compact&card_width=200&langs_count=8&bg_color=0D1117&text_color=ffffff&title_color=9370db&hide_border=true" />
   </a>
 </div>
 
 ---
-
-
-
-
-
-
-
-
-
-
-
-### <img align ='center' src='https://media2.giphy.com/media/UQDSBzfyiBKvgFcSTw/giphy.gif?cid=ecf05e47p3cd513axbek3f56ti3jzizq8hincw20jauyyfyw&rid=giphy.gif' width ='29' /> Here's some humor for you:
-<img src="https://readme-jokes.vercel.app/api?hideBorder&theme=cobalt&qColor=%239370db&aColor=%23ffffff&bgColor=%230D1117" alt="Error fetching resource, Refresh again to view Jokes Card" width = '11000' />
