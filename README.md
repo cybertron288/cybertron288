@@ -10,11 +10,19 @@ Outside work: building **[Igris](https://igrisecurity.com/)** — a governance l
 
 ## Stack
 
-**Frontend** · React · TypeScript · Next.js · Tailwind · GSAP · Three.js · Redux  
-**Backend** · Node.js · Hono · Express · Django/Zango  
-**Data** · PostgreSQL · Drizzle  
-**Mobile** · React Native · Expo  
-**Tooling** · Bun · Vite · Docker · Git · Figma
+**Frontend**
+![](https://skillicons.dev/icons?i=react,ts,nextjs,tailwind,threejs,redux&theme=dark)
+
+**Backend**
+![](https://skillicons.dev/icons?i=nodejs,express,django&theme=dark)
+
+**Data**
+![](https://skillicons.dev/icons?i=postgres&theme=dark)
+
+**Mobile** · React Native · Expo
+
+**Tooling**
+![](https://skillicons.dev/icons?i=bun,vite,docker,git,figma&theme=dark)
 
 ---
 
