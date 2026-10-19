@@ -43,8 +43,10 @@ def test_crop_fraction_limits_to_left_part():
     for x in range(70, 100):
         for y in range(40):
             img.putpixel((x, y), (0, 0, 0, 255))   # right 30% is black
-    rows = portrait.image_to_cells(img, cols=10, max_rows=32, crop=(0.0, 0.0, 0.7, 1.0))
-    assert all(cell[1] != "#3c3c3c" for row in rows for cell in row)  # no boosted-black cells survive
+    black = "#%02x%02x%02x" % portrait.boost_rgb((0, 0, 0))
+    uncropped = {cell[1] for row in portrait.image_to_cells(img, cols=10, max_rows=32) for cell in row}
+    cropped = {cell[1] for row in portrait.image_to_cells(img, cols=10, max_rows=32, crop=(0.0, 0.0, 0.7, 1.0)) for cell in row}
+    assert black in uncropped and black not in cropped
 
 
 def test_boost_rgb_keeps_saturation():

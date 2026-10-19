@@ -1,6 +1,6 @@
 import datetime, today
 
-NOW = datetime.datetime(2026, 10, 19, 21, 0, 0)
+NOW = datetime.datetime(2026, 10, 19, 21, 0, 0, tzinfo=datetime.timezone.utc)
 
 
 def test_format_uptime():

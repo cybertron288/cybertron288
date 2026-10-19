@@ -1,3 +1,9 @@
+"""Daily data + render pipeline for the profile README's tmux hero.
+
+The GitHub GraphQL stats and LOC-cache machinery (user_getter, loc_query, cache_builder,
+recursive_loc, graph_repos_stars, ...) is adapted from Andrew6rant/Andrew6rant (today.py).
+The tmux hero data sources and rendering hooks at the bottom are specific to this profile.
+"""
 import datetime
 from dateutil import relativedelta
 import requests
@@ -178,6 +184,7 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None,
 
 def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
     cached = True
+    os.makedirs('cache', exist_ok=True)  # fresh CI checkouts have no cache dir yet
     filename = 'cache/' + hashlib.sha256(USER_NAME.encode('utf-8')).hexdigest() + '.txt'
     try:
         with open(filename, 'r') as f:
@@ -287,8 +294,12 @@ def follower_getter(username):
 MSG_MAX = 58
 
 
+def now_utc():
+    return datetime.datetime.now(datetime.timezone.utc)
+
+
 def _parse_iso(iso):
-    return datetime.datetime.strptime(iso, '%Y-%m-%dT%H:%M:%SZ')
+    return datetime.datetime.strptime(iso, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=datetime.timezone.utc)
 
 
 def format_uptime(created_at, now):
@@ -304,7 +315,7 @@ def languages_from_edges(repo_edges, top=4):
     """Sum language bytes across repos -> [{'name', 'pct'}] (top N, integer percent of total)."""
     totals = {}
     for edge in repo_edges:
-        for lang in edge['node']['languages']['edges']:
+        for lang in (edge['node'].get('languages') or {}).get('edges', []):
             totals[lang['node']['name']] = totals.get(lang['node']['name'], 0) + lang['size']
     grand = sum(totals.values())
     if grand == 0:
@@ -373,7 +384,10 @@ def languages_getter(cursor=None, edges=None):
 def events_getter():
     query_count('events_getter')
     request = requests.get(f'https://api.github.com/users/{USER_NAME}/events/public?per_page=100', headers=HEADERS)
-    return request.json() if request.status_code == 200 else []
+    if request.status_code != 200:
+        print(f'events_getter: GitHub returned {request.status_code}; recent-commit rows will be blank')
+        return []
+    return request.json()
 
 
 def query_count(funct_id):
@@ -401,7 +415,7 @@ OWNER_ID = None
 def build_data(now=None):
     """Run every GitHub query and return the dict render_tmux.render consumes."""
     global OWNER_ID
-    now = now or datetime.datetime.utcnow()
+    now = now or now_utc()
     print('Calculation times:')
     user_data, user_time = perf_counter(user_getter, USER_NAME)
     OWNER_ID, acc_date = user_data
