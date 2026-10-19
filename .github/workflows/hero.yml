@@ -26,6 +26,23 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Check ACCESS_TOKEN
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: |
+          if [ -z "$ACCESS_TOKEN" ]; then
+            echo "::error::ACCESS_TOKEN secret is not set. Add a fine-grained PAT (permissions listed at the top of today.py)."
+            exit 1
+          fi
+          echo "token length: ${#ACCESS_TOKEN}, prefix: ${ACCESS_TOKEN:0:11}"
+          code=$(curl -s -o /tmp/me.json -w "%{http_code}" -H "Authorization: token $ACCESS_TOKEN" https://api.github.com/user)
+          if [ "$code" != "200" ]; then
+            echo "::error::GitHub rejected ACCESS_TOKEN (HTTP $code). Regenerate the token and re-run: gh secret set ACCESS_TOKEN"
+            cat /tmp/me.json
+            exit 1
+          fi
+          echo "token OK for $(python -c 'import json;print(json.load(open("/tmp/me.json"))["login"])')"
+
       - name: Generate hero SVGs
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
