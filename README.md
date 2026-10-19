@@ -48,12 +48,6 @@ Ravi Patel  —  SDE-2 @ Healthlane Technologies
 
 ---
 
-<!-- ░░ WakaTime — languages / time coded (auto-updated by the waka workflow) ░░ -->
-<!--START_SECTION:waka-->
-<!--END_SECTION:waka-->
-
----
-
 ### `contribution snake`
 
 <div align="center">
