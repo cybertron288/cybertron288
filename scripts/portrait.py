@@ -1,0 +1,101 @@
+"""One-off: turn a photo into color ASCII runs for the tmux hero.
+
+Usage: python scripts/portrait.py <photo> <out.json> [--crop l,t,r,b] [--dark-blank N] [--gamma G]
+
+Requires rembg + Pillow (only at generation time; CI never runs this).
+Output shape: {"cols", "rows", "cell": [w, h], "rows_runs": [[[text, "#rrggbb"], ...], ...]}
+"""
+import argparse
+import colorsys
+import json
+
+from PIL import Image, ImageOps
+
+COLS = 60
+MAX_ROWS = 32
+CELL = (5, 10)
+RAMP = " .:-=+*#%@"
+OPAQUE_RAMP = RAMP[1:]  # an opaque pixel is never rendered blank
+ALPHA_MIN = 60
+BLANK = (" ", "#000000")
+
+
+def boost_rgb(rgb: tuple[int, int, int]) -> tuple[int, int, int]:
+    """Lift for dark backgrounds while keeping (even increasing) saturation."""
+    h, s, v = colorsys.rgb_to_hsv(*(c / 255 for c in rgb))
+    r, g, b = colorsys.hsv_to_rgb(h, min(1.0, s * 1.35), v)
+    return tuple(min(255, int(40 + c * 255 * 0.84)) for c in (r, g, b))
+
+
+def image_to_cells(img: Image.Image, cols: int = COLS, max_rows: int = MAX_ROWS,
+                   crop: tuple[float, float, float, float] | None = None,
+                   dark_blank: int = 0, gamma: float = 1.0) -> list[list[tuple[str, str]]]:
+    """`crop` = (l, t, r, b) fractions of the alpha bounding box to keep, e.g. (0, 0, 0.7, 1).
+
+    `dark_blank`: opaque pixels whose (autocontrasted) luminance is below this render blank —
+    for subjects drawn on black, where black *is* the void. 0 disables.
+    `gamma` < 1 lifts midtones so dim regions get bigger glyphs; applied after autocontrast.
+    """
+    img = img.convert("RGBA")
+    bbox = img.getchannel("A").point(lambda a: 255 if a >= ALPHA_MIN else 0).getbbox()
+    if bbox:
+        img = img.crop(bbox)
+    if crop:
+        w, h = img.size
+        img = img.crop((int(w * crop[0]), int(h * crop[1]), int(w * crop[2]), int(h * crop[3])))
+    w, h = img.size
+    rows = max(1, round(h * cols / w * CELL[0] / CELL[1]))
+    img = img.resize((cols, rows), Image.LANCZOS)
+    if rows > max_rows:
+        img = img.crop((0, 0, cols, max_rows))  # keep the top (head) when too tall
+        rows = max_rows
+    rgb = ImageOps.autocontrast(img.convert("RGB"))
+    lum = rgb.convert("L")
+    if gamma != 1.0:
+        lum = lum.point(lambda v: round(255 * (v / 255) ** gamma))
+    out = []
+    for y in range(rows):
+        row = []
+        for x in range(cols):
+            if img.getpixel((x, y))[3] < ALPHA_MIN or lum.getpixel((x, y)) < dark_blank:
+                row.append(BLANK)
+                continue
+            glyph = OPAQUE_RAMP[min(len(OPAQUE_RAMP) - 1, lum.getpixel((x, y)) * len(OPAQUE_RAMP) // 256)]
+            r, g, b = boost_rgb(rgb.getpixel((x, y)))
+            row.append((glyph, f"#{r:02x}{g:02x}{b:02x}"))
+        out.append(row)
+    return out
+
+
+def cells_to_runs(cells: list[tuple[str, str]]) -> list[list[str]]:
+    runs: list[list[str]] = []
+    for glyph, color in cells:
+        if runs and runs[-1][1] == color:
+            runs[-1][0] += glyph
+        else:
+            runs.append([glyph, color])
+    return runs
+
+
+def main(src: str, out: str, crop: tuple[float, float, float, float] | None = None,
+         dark_blank: int = 0, gamma: float = 1.0) -> None:
+    from rembg import remove  # heavy import; generation time only
+
+    cutout = remove(Image.open(src))
+    rows = image_to_cells(cutout, COLS, MAX_ROWS, crop=crop, dark_blank=dark_blank, gamma=gamma)
+    data = {"cols": COLS, "rows": len(rows), "cell": list(CELL), "rows_runs": [cells_to_runs(r) for r in rows]}
+    with open(out, "w") as f:
+        json.dump(data, f, separators=(",", ":"))
+    print(f"{out}: {COLS}x{len(rows)}, {sum(len(r) for r in data['rows_runs'])} runs")
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("photo")
+    ap.add_argument("out")
+    ap.add_argument("--crop", help="l,t,r,b fractions of the subject box to keep, e.g. 0,0,0.72,1")
+    ap.add_argument("--dark-blank", type=int, default=0, help="blank opaque pixels darker than this (0-255)")
+    ap.add_argument("--gamma", type=float, default=1.0, help="<1 lifts midtones")
+    a = ap.parse_args()
+    box = tuple(float(v) for v in a.crop.split(",")) if a.crop else None
+    main(a.photo, a.out, box, a.dark_blank, a.gamma)
