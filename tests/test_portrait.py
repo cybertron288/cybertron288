@@ -52,3 +52,27 @@ def test_crop_fraction_limits_to_left_part():
 def test_boost_rgb_keeps_saturation():
     r, g, b = portrait.boost_rgb((200, 30, 30))
     assert r - g >= 150 and r > 200
+
+
+def _anchored(fill, size=(44, 20)):
+    """Uniform image with one white and one black pixel so autocontrast leaves `fill` where it is."""
+    img = Image.new("RGBA", size, fill + (255,))
+    img.putpixel((0, 0), (255, 255, 255, 255))
+    img.putpixel((1, 0), (0, 0, 0, 255))
+    return img
+
+
+def test_dark_blank_threshold_blanks_near_black_opaque():
+    img = _anchored((8, 8, 8))
+    plain = portrait.image_to_cells(img, cols=portrait.COLS, max_rows=portrait.MAX_ROWS)
+    cut = portrait.image_to_cells(img, cols=portrait.COLS, max_rows=portrait.MAX_ROWS, dark_blank=30)
+    assert plain[-1][-1][0] != " "
+    assert cut[-1][-1][0] == " "
+    assert cut[0][0][0] != " "           # the bright anchor survives
+
+
+def test_gamma_lifts_midtones_to_bigger_glyphs():
+    img = _anchored((60, 60, 60))
+    plain = portrait.image_to_cells(img, cols=portrait.COLS, max_rows=portrait.MAX_ROWS)[-1][-1][0]
+    lifted = portrait.image_to_cells(img, cols=portrait.COLS, max_rows=portrait.MAX_ROWS, gamma=0.5)[-1][-1][0]
+    assert portrait.OPAQUE_RAMP.index(lifted) > portrait.OPAQUE_RAMP.index(plain)

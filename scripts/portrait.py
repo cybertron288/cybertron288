@@ -1,13 +1,13 @@
 """One-off: turn a photo into color ASCII runs for the tmux hero.
 
-Usage: python scripts/portrait.py <photo> <out.json> [l,t,r,b crop fractions]
+Usage: python scripts/portrait.py <photo> <out.json> [--crop l,t,r,b] [--dark-blank N] [--gamma G]
 
 Requires rembg + Pillow (only at generation time; CI never runs this).
 Output shape: {"cols", "rows", "cell": [w, h], "rows_runs": [[[text, "#rrggbb"], ...], ...]}
 """
+import argparse
 import colorsys
 import json
-import sys
 
 from PIL import Image, ImageOps
 
@@ -28,8 +28,14 @@ def boost_rgb(rgb: tuple[int, int, int]) -> tuple[int, int, int]:
 
 
 def image_to_cells(img: Image.Image, cols: int = COLS, max_rows: int = MAX_ROWS,
-                   crop: tuple[float, float, float, float] | None = None) -> list[list[tuple[str, str]]]:
-    """`crop` = (l, t, r, b) fractions of the alpha bounding box to keep, e.g. (0, 0, 0.7, 1)."""
+                   crop: tuple[float, float, float, float] | None = None,
+                   dark_blank: int = 0, gamma: float = 1.0) -> list[list[tuple[str, str]]]:
+    """`crop` = (l, t, r, b) fractions of the alpha bounding box to keep, e.g. (0, 0, 0.7, 1).
+
+    `dark_blank`: opaque pixels whose (autocontrasted) luminance is below this render blank —
+    for subjects drawn on black, where black *is* the void. 0 disables.
+    `gamma` < 1 lifts midtones so dim regions get bigger glyphs; applied after autocontrast.
+    """
     img = img.convert("RGBA")
     bbox = img.getchannel("A").point(lambda a: 255 if a >= ALPHA_MIN else 0).getbbox()
     if bbox:
@@ -45,11 +51,13 @@ def image_to_cells(img: Image.Image, cols: int = COLS, max_rows: int = MAX_ROWS,
         rows = max_rows
     rgb = ImageOps.autocontrast(img.convert("RGB"))
     lum = rgb.convert("L")
+    if gamma != 1.0:
+        lum = lum.point(lambda v: round(255 * (v / 255) ** gamma))
     out = []
     for y in range(rows):
         row = []
         for x in range(cols):
-            if img.getpixel((x, y))[3] < ALPHA_MIN:
+            if img.getpixel((x, y))[3] < ALPHA_MIN or lum.getpixel((x, y)) < dark_blank:
                 row.append(BLANK)
                 continue
             glyph = OPAQUE_RAMP[min(len(OPAQUE_RAMP) - 1, lum.getpixel((x, y)) * len(OPAQUE_RAMP) // 256)]
@@ -69,11 +77,12 @@ def cells_to_runs(cells: list[tuple[str, str]]) -> list[list[str]]:
     return runs
 
 
-def main(src: str, out: str, crop: tuple[float, float, float, float] | None = None) -> None:
+def main(src: str, out: str, crop: tuple[float, float, float, float] | None = None,
+         dark_blank: int = 0, gamma: float = 1.0) -> None:
     from rembg import remove  # heavy import; generation time only
 
     cutout = remove(Image.open(src))
-    rows = image_to_cells(cutout, COLS, MAX_ROWS, crop=crop)
+    rows = image_to_cells(cutout, COLS, MAX_ROWS, crop=crop, dark_blank=dark_blank, gamma=gamma)
     data = {"cols": COLS, "rows": len(rows), "cell": list(CELL), "rows_runs": [cells_to_runs(r) for r in rows]}
     with open(out, "w") as f:
         json.dump(data, f, separators=(",", ":"))
@@ -81,6 +90,12 @@ def main(src: str, out: str, crop: tuple[float, float, float, float] | None = No
 
 
 if __name__ == "__main__":
-    # optional 3rd arg: crop fractions "l,t,r,b" of the subject box, e.g. "0,0,0.72,1"
-    box = tuple(float(v) for v in sys.argv[3].split(",")) if len(sys.argv) > 3 else None
-    main(sys.argv[1], sys.argv[2], box)
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("photo")
+    ap.add_argument("out")
+    ap.add_argument("--crop", help="l,t,r,b fractions of the subject box to keep, e.g. 0,0,0.72,1")
+    ap.add_argument("--dark-blank", type=int, default=0, help="blank opaque pixels darker than this (0-255)")
+    ap.add_argument("--gamma", type=float, default=1.0, help="<1 lifts midtones")
+    a = ap.parse_args()
+    box = tuple(float(v) for v in a.crop.split(",")) if a.crop else None
+    main(a.photo, a.out, box, a.dark_blank, a.gamma)
