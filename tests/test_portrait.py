@@ -26,3 +26,27 @@ def test_rows_capped():
     img = Image.new("RGBA", (44, 2000), (255, 255, 255, 255))
     rows = portrait.image_to_cells(img, cols=portrait.COLS, max_rows=portrait.MAX_ROWS)
     assert len(rows) == portrait.MAX_ROWS
+
+
+def test_opaque_dark_pixel_never_blank():
+    img = Image.new("RGBA", (44, 20), (8, 8, 8, 255))
+    rows = portrait.image_to_cells(img, cols=portrait.COLS, max_rows=portrait.MAX_ROWS)
+    assert all(cell[0] != " " for row in rows for cell in row)
+
+
+def test_portrait_fills_pane_width():
+    assert portrait.COLS * portrait.CELL[0] <= 308 and portrait.COLS * portrait.CELL[0] >= 290
+
+
+def test_crop_fraction_limits_to_left_part():
+    img = Image.new("RGBA", (100, 40), (255, 255, 255, 255))
+    for x in range(70, 100):
+        for y in range(40):
+            img.putpixel((x, y), (0, 0, 0, 255))   # right 30% is black
+    rows = portrait.image_to_cells(img, cols=10, max_rows=32, crop=(0.0, 0.0, 0.7, 1.0))
+    assert all(cell[1] != "#3c3c3c" for row in rows for cell in row)  # no boosted-black cells survive
+
+
+def test_boost_rgb_keeps_saturation():
+    r, g, b = portrait.boost_rgb((200, 30, 30))
+    assert r - g >= 150 and r > 200
