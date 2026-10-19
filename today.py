@@ -27,8 +27,20 @@ def format_plural(unit):
     return 's' if unit != 1 else ''
 
 
+def graphql_post(query, variables, attempts=5):
+    """POST to the GraphQL API, retrying 5xx (gateway timeouts on heavy queries) with backoff."""
+    for i in range(attempts):
+        request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables': variables}, headers=HEADERS)
+        if request.status_code < 500 or i == attempts - 1:
+            return request
+        wait = 2 ** (i + 1)
+        print(f'GraphQL returned {request.status_code}; retry {i + 1}/{attempts - 1} in {wait}s')
+        time.sleep(wait)
+    return request
+
+
 def simple_request(func_name, query, variables):
-    request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables': variables}, headers=HEADERS)
+    request = graphql_post(query, variables)
     if request.status_code == 200:
         return request
     raise Exception(func_name, ' has failed with a', request.status_code, request.text, QUERY_COUNT)
@@ -119,7 +131,7 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
         }
     }'''
     variables = {'repo_name': repo_name, 'owner': owner, 'cursor': cursor}
-    request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables': variables}, headers=HEADERS)
+    request = graphql_post(query, variables)
     if request.status_code == 200:
         if request.json()['data']['repository']['defaultBranchRef'] is not None:
             return loc_counter_one_repo(owner, repo_name, data, cache_comment, request.json()['data']['repository']['defaultBranchRef']['target']['history'], addition_total, deletion_total, my_commits)
