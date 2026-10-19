@@ -2,9 +2,12 @@ import datetime
 from dateutil import relativedelta
 import requests
 import os
-from lxml import etree
 import time
 import hashlib
+import argparse
+import json
+
+import render_tmux
 
 # Fine-grained personal access token with All Repositories access:
 # Account permissions: read:Followers, read:Starring, read:Watching
@@ -12,16 +15,6 @@ import hashlib
 HEADERS = {'authorization': 'token ' + os.environ.get('ACCESS_TOKEN', '')}
 USER_NAME = os.environ.get('USER_NAME', 'cybertron288')
 QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, 'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0, 'languages_getter': 0, 'events_getter': 0}
-
-
-def daily_readme(birthday):
-    """Returns the length of time since birthday, e.g. 'XX years, XX months, XX days'."""
-    diff = relativedelta.relativedelta(datetime.datetime.today(), birthday)
-    return '{} {}, {} {}, {} {}{}'.format(
-        diff.years, 'year' + format_plural(diff.years),
-        diff.months, 'month' + format_plural(diff.months),
-        diff.days, 'day' + format_plural(diff.days),
-        ' 🎂' if (diff.months == 0 and diff.days == 0) else '')
 
 
 def format_plural(unit):
@@ -251,41 +244,6 @@ def stars_counter(data):
     return total_stars
 
 
-def svg_overwrite(filename, age_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data):
-    tree = etree.parse(filename)
-    root = tree.getroot()
-    justify_format(root, 'age_data', age_data, 49)
-    justify_format(root, 'commit_data', commit_data, 22)
-    justify_format(root, 'star_data', star_data, 14)
-    justify_format(root, 'repo_data', repo_data, 6)
-    justify_format(root, 'contrib_data', contrib_data)
-    justify_format(root, 'follower_data', follower_data, 10)
-    justify_format(root, 'loc_data', loc_data[2], 9)
-    justify_format(root, 'loc_add', loc_data[0])
-    justify_format(root, 'loc_del', loc_data[1], 7)
-    tree.write(filename, encoding='utf-8', xml_declaration=True)
-
-
-def justify_format(root, element_id, new_text, length=0):
-    if isinstance(new_text, int):
-        new_text = f"{'{:,}'.format(new_text)}"
-    new_text = str(new_text)
-    find_and_replace(root, element_id, new_text)
-    just_len = max(0, length - len(new_text))
-    if just_len <= 2:
-        dot_map = {0: '', 1: ' ', 2: '. '}
-        dot_string = dot_map[just_len]
-    else:
-        dot_string = ' ' + ('.' * just_len) + ' '
-    find_and_replace(root, f"{element_id}_dots", dot_string)
-
-
-def find_and_replace(root, element_id, new_text):
-    element = root.find(f".//*[@id='{element_id}']")
-    if element is not None:
-        element.text = new_text
-
-
 def commit_counter(comment_size):
     total_commits = 0
     filename = 'cache/' + hashlib.sha256(USER_NAME.encode('utf-8')).hexdigest() + '.txt'
@@ -437,32 +395,71 @@ def formatter(query_type, difference, funct_return=False, whitespace=0):
     return funct_return
 
 
-if __name__ == '__main__':
+OWNER_ID = None
+
+
+def build_data(now=None):
+    """Run every GitHub query and return the dict render_tmux.render consumes."""
+    global OWNER_ID
+    now = now or datetime.datetime.utcnow()
     print('Calculation times:')
     user_data, user_time = perf_counter(user_getter, USER_NAME)
     OWNER_ID, acc_date = user_data
     formatter('account data', user_time)
-    # Birthday for the "Uptime" counter. Change to your real DOB.
-    age_data, age_time = perf_counter(daily_readme, datetime.datetime(2000, 1, 1))
-    formatter('age calculation', age_time)
     total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
     formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
     commit_data, commit_time = perf_counter(commit_counter, 7)
+    formatter('commit counter', commit_time)
     star_data, star_time = perf_counter(graph_repos_stars, 'stars', ['OWNER'])
+    formatter('star counter', star_time)
     repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER'])
+    formatter('my repositories', repo_time)
     contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
+    formatter('contributed repos', contrib_time)
     follower_data, follower_time = perf_counter(follower_getter, USER_NAME)
-
-    for index in range(len(total_loc) - 1):
-        total_loc[index] = '{:,}'.format(total_loc[index])
-
-    svg_overwrite('dark_mode.svg', age_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:-1])
-    svg_overwrite('light_mode.svg', age_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:-1])
-
-    print('\033[F\033[F\033[F\033[F\033[F\033[F\033[F\033[F',
-          '{:<21}'.format('Total function time:'), '{:>11}'.format('%.4f' % (user_time + age_time + loc_time + commit_time + star_time + repo_time + contrib_time)),
-          ' s \033[E\033[E\033[E\033[E\033[E\033[E\033[E\033[E', sep='')
-
-    print('Total GitHub GraphQL API calls:', '{:>3}'.format(sum(QUERY_COUNT.values())))
+    formatter('follower counter', follower_time)
+    languages, lang_time = perf_counter(languages_getter)
+    formatter('languages', lang_time)
+    events, events_time = perf_counter(events_getter)
+    formatter('public events', events_time)
+    print('Total GitHub API calls:', '{:>3}'.format(sum(QUERY_COUNT.values())))
     for funct_name, count in QUERY_COUNT.items():
         print('{:<28}'.format('   ' + funct_name + ':'), '{:>6}'.format(count))
+    return {
+        'login': USER_NAME, 'name': 'Ravi Patel', 'generated': now.strftime('%Y-%m-%d'),
+        'uptime': format_uptime(acc_date, now),
+        'commits': commit_data, 'stars': star_data, 'repos': repo_data, 'contrib_repos': contrib_data,
+        'followers': follower_data,
+        'loc': {'add': total_loc[0], 'del': total_loc[1], 'net': total_loc[2]},
+        'languages': languages,
+        'commits_recent': commits_from_events(events, USER_NAME, now),
+    }
+
+
+def write_hero(data, portrait_path='assets/portrait.json', out_dir='assets'):
+    """Render dark + light tmux hero SVGs; returns the written paths."""
+    with open(portrait_path) as f:
+        portrait = json.load(f)
+    os.makedirs(out_dir, exist_ok=True)
+    written = []
+    for theme in ('dark', 'light'):
+        path = os.path.join(out_dir, f'tmux-{theme}.svg')
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(render_tmux.render(data, render_tmux.PALETTES[theme], portrait))
+        written.append(path)
+    return written
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Generate the tmux-session hero SVGs for the profile README.')
+    parser.add_argument('--render-only', metavar='DATA_JSON', help='skip GitHub queries; render from this data file')
+    parser.add_argument('--out', default='assets', help='output directory (default: assets)')
+    parser.add_argument('--portrait', default='assets/portrait.json')
+    args = parser.parse_args()
+    if args.render_only:
+        with open(args.render_only) as f:
+            hero_data = json.load(f)
+    else:
+        hero_data = build_data()
+    for written_path in write_hero(hero_data, args.portrait, args.out):
+        print('wrote', written_path)
