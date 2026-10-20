@@ -29,13 +29,20 @@ def format_plural(unit):
 
 
 def graphql_post(query, variables, attempts=5):
-    """POST to the GraphQL API, retrying 5xx (gateway timeouts on heavy queries) with backoff."""
+    """POST to the GraphQL API, retrying 5xx (gateway timeouts on heavy queries) and dropped connections with backoff."""
     for i in range(attempts):
-        request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables': variables}, headers=HEADERS)
-        if request.status_code < 500 or i == attempts - 1:
-            return request
+        try:
+            request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables': variables}, headers=HEADERS)
+        except requests.exceptions.ConnectionError as err:
+            if i == attempts - 1:
+                raise
+            reason = f'connection error ({err})'
+        else:
+            if request.status_code < 500 or i == attempts - 1:
+                return request
+            reason = f'GraphQL returned {request.status_code}'
         wait = 2 ** (i + 1)
-        print(f'GraphQL returned {request.status_code}; retry {i + 1}/{attempts - 1} in {wait}s')
+        print(f'{reason}; retry {i + 1}/{attempts - 1} in {wait}s')
         time.sleep(wait)
     return request
 
@@ -226,16 +233,21 @@ def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
                     owner, repo_name = edges[index]['node']['nameWithOwner'].split('/')
                     loc = recursive_loc(owner, repo_name, data, cache_comment)
                     data[index] = repo_hash + ' ' + str(edges[index]['node']['defaultBranchRef']['target']['history']['totalCount']) + ' ' + str(loc[2]) + ' ' + str(loc[0]) + ' ' + str(loc[1]) + '\n'
+                    write_cache(filename, cache_comment, data)  # a crash later in the crawl keeps this repo's count
             except TypeError:
                 data[index] = repo_hash + ' 0 0 0 0\n'
-    with open(filename, 'w') as f:
-        f.writelines(cache_comment)
-        f.writelines(data)
+    write_cache(filename, cache_comment, data)
     for line in data:
         loc = line.split()
         loc_add += int(loc[3])
         loc_del += int(loc[4])
     return [loc_add, loc_del, loc_add - loc_del, cached]
+
+
+def write_cache(filename, cache_comment, data):
+    with open(filename, 'w') as f:
+        f.writelines(cache_comment)
+        f.writelines(data)
 
 
 def flush_cache(edges, filename, comment_size):

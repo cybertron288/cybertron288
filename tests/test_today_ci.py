@@ -98,3 +98,48 @@ def test_commits_from_events_skips_merge_commits():
               _push("a/b", "f", [{"sha": "f000000", "message": "fix: real work"}])]
     out = today.commits_from_events(events, "cybertron288", today._parse_iso("2026-10-20T20:00:00Z"))
     assert [c["sha"] for c in out] == ["f000000"]
+
+
+def test_graphql_post_retries_connection_errors(monkeypatch):
+    answers = [today.requests.exceptions.ConnectionError("reset"), _Resp(200, data={"data": {}})]
+
+    def post(*a, **k):
+        item = answers.pop(0)
+        if isinstance(item, Exception):
+            raise item
+        return item
+    monkeypatch.setattr(today.requests, "post", post)
+    monkeypatch.setattr(today.time, "sleep", lambda s: None)
+    assert today.graphql_post("query {}", {}).status_code == 200
+
+
+def test_graphql_post_raises_connection_error_after_last_attempt(monkeypatch):
+    def post(*a, **k):
+        raise today.requests.exceptions.ConnectionError("down")
+    monkeypatch.setattr(today.requests, "post", post)
+    monkeypatch.setattr(today.time, "sleep", lambda s: None)
+    try:
+        today.graphql_post("query {}", {}, attempts=2)
+    except today.requests.exceptions.ConnectionError:
+        return
+    raise AssertionError("expected ConnectionError")
+
+
+def test_cache_builder_keeps_finished_repos_when_crawl_dies(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    edges = [{"node": {"nameWithOwner": f"o/r{i}", "defaultBranchRef": {"target": {"history": {"totalCount": 5}}}}} for i in range(2)]
+    calls = []
+
+    def fake_loc(owner, repo, data, comment):
+        calls.append(repo)
+        if repo == "r1":
+            raise today.requests.exceptions.ConnectionError("reset")
+        return (10, 2, 5)
+    monkeypatch.setattr(today, "recursive_loc", fake_loc)
+    try:
+        today.cache_builder(edges, 0, False)
+    except today.requests.exceptions.ConnectionError:
+        pass
+    lines = next((tmp_path / "cache").glob("*.txt")).read_text().splitlines()
+    assert lines[0].split()[1:] == ["5", "5", "10", "2"]    # r0 survived the crash
+    assert lines[1].split()[1:] == ["0", "0", "0", "0"]     # r1 retried next run
