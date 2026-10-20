@@ -1,4 +1,4 @@
-"""Pure renderers for the README section under the hero: two project cards + a stack/activity strip.
+"""Pure renderers for the README section under the hero: four project cards + a stack/activity strip.
 
 No network, no files. `today.py` feeds real numbers; tests feed fixtures. Palettes come from render_tmux.
 Each card is its own SVG so the README can wrap each in a link.
@@ -20,15 +20,6 @@ BAR_H = 64
 FONT_STACK = 'ConsolasFallback, Consolas, &quot;JetBrains Mono&quot;, Menlo, monospace'
 
 PROJECTS = {
-    "zango": {
-        "name": "zango",
-        "sub": "Healthlane-Technologies/Zango",
-        "desc": ["Django meta-framework for enterprise business apps.",
-                 "Core contributor."],
-        "flow": ["tenant apps", "zango core", "django", "postgres"],
-        "hl": 1,
-        "meta": "runs at AstraZeneca · Pfizer · BMS · Roche · MSD",
-    },
     "igris": {
         "name": "igris",
         "sub": "igrisecurity.com",
@@ -37,6 +28,37 @@ PROJECTS = {
         "flow": ["agent", "policy ✓ / ✗", "LLM · MCP", "audit log"],
         "hl": 1,
         "meta": "policy engine · audit trail · MCP access",
+        "status": "● building",
+    },
+    "nova-memory": {
+        "name": "nova-memory",
+        "sub": "cybertron288/nova-memory",
+        "desc": ["Encrypted on-device memory for macOS, served",
+                 "to any LLM client over MCP. Finds open loops."],
+        "flow": ["capture", "encrypt", "on-device store", "LLM · MCP"],
+        "hl": 1,
+        "meta": "typescript · mcp · stays on the device",
+        "repo": "cybertron288/nova-memory",
+    },
+    "contrib-matrix": {
+        "name": "contrib-matrix",
+        "sub": "cybertron288/contrib-matrix",
+        "desc": ["GitHub contribution heatmap on a 16×8 WS2812B",
+                 "LED matrix on the desk, driven by WLED."],
+        "flow": ["github api", "heatmap", "WLED", "16×8 leds"],
+        "hl": 2,
+        "meta": "typescript · hardware · ws2812b",
+        "repo": "cybertron288/contrib-matrix",
+    },
+    "zango-setup-helper": {
+        "name": "zango setup helper",
+        "sub": "healthlane · desktop app",
+        "desc": ["Electron desktop app: 15+ manual CLI steps",
+                 "become a 7-step wizard for new Zango devs."],
+        "flow": ["wizard", "django · celery", "db sync", "xterm.js"],
+        "hl": 1,
+        "meta": "electron · react · bun · xterm.js",
+        "status": "internal",
     },
 }
 
@@ -65,13 +87,17 @@ def card_lines(key, data):
 
 
 def _corner(key, data, p):
-    """(text, fill, pulse) for the top-right badge."""
-    if key == "zango":
-        z = data.get("zango")
-        if not z:
+    """(text, fill, pulse) for the top-right badge: live stars for repo-backed cards, a status word otherwise."""
+    proj = PROJECTS[key]
+    if "repo" in proj:
+        r = (data.get("cards") or {}).get(key)
+        if not r:
             return "open source", p["muted"], False
-        return f'★ {z["stars"]:,}  ⑂ {z["forks"]:,}', p["yellow"], False
-    return "● building", p["green"], True
+        return f'★ {r["stars"]:,}  ⑂ {r["forks"]:,}', p["yellow"], False
+    status = proj.get("status", "")
+    if status.startswith("●"):
+        return status, p["green"], True
+    return status, p["muted"], False
 
 
 def render_card(key, data, palette):

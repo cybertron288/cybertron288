@@ -8,7 +8,7 @@ def test_render_only_writes_both_svgs(tmp_path):
     import today
     paths = today.write_hero(data, portrait_path=str(ROOT / "assets/portrait.json"), out_dir=str(tmp_path))
     assert sorted(pathlib.Path(p).name for p in paths) == sorted(
-        f"{name}-{theme}.svg" for name in ("tmux", "card-zango", "card-igris", "activity") for theme in ("dark", "light"))
+        f"{name}-{theme}.svg" for name in ("tmux", "activity", "card-igris", "card-nova-memory", "card-contrib-matrix", "card-zango-setup-helper") for theme in ("dark", "light"))
     for p in paths:
         etree.parse(p)
 

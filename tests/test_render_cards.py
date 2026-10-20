@@ -13,14 +13,26 @@ def parse(s):
 
 
 def test_cards_well_formed_and_sized():
-    for key in ("zango", "igris"):
+    for key in rc.PROJECTS:
         root = parse(rc.render_card(key, DATA, PALETTES["dark"]))
         assert root.get("width") == str(rc.CARD_W) and root.get("height") == str(rc.CARD_H)
 
 
-def test_zango_card_shows_live_stars_and_clients():
-    s = rc.render_card("zango", DATA, PALETTES["dark"])
-    assert "★ 351" in s and "AstraZeneca" in s and "Healthlane-Technologies/Zango" in s
+def test_repo_cards_show_live_stars_and_repo():
+    s = rc.render_card("nova-memory", DATA, PALETTES["dark"])
+    assert "★ 1" in s and "cybertron288/nova-memory" in s and "MCP" in s
+    s = rc.render_card("contrib-matrix", DATA, PALETTES["dark"])
+    assert "★ 0" in s and "WLED" in s
+
+
+def test_internal_card_has_status_no_stars():
+    s = rc.render_card("zango-setup-helper", DATA, PALETTES["dark"])
+    assert "internal" in s and "★" not in s and "building" not in s
+
+
+def test_four_cards_two_repo_backed():
+    assert list(rc.PROJECTS) == ["igris", "nova-memory", "contrib-matrix", "zango-setup-helper"]
+    assert [k for k, v in rc.PROJECTS.items() if "repo" in v] == ["nova-memory", "contrib-matrix"]
 
 
 def test_igris_card_status_and_site():
@@ -29,7 +41,7 @@ def test_igris_card_status_and_site():
 
 
 def test_card_flow_boxes_fit_inside_card():
-    for key in ("zango", "igris"):
+    for key in rc.PROJECTS:
         root = parse(rc.render_card(key, DATA, PALETTES["dark"]))
         boxes = root.xpath('//*[@class="flow-box"]')
         assert len(boxes) == 4
@@ -38,16 +50,16 @@ def test_card_flow_boxes_fit_inside_card():
 
 
 def test_card_text_lines_fit_inside_card():
-    for key in ("zango", "igris"):
+    for key in rc.PROJECTS:
         for line in rc.card_lines(key, DATA):
             assert rc.PAD + len(line) * rc.CHAR <= rc.CARD_W - rc.PAD, line
 
 
-def test_card_without_zango_data_falls_back():
-    d = {k: v for k, v in DATA.items() if k != "zango"}
-    s = rc.render_card("zango", d, PALETTES["dark"])
+def test_card_without_cards_data_falls_back():
+    d = {k: v for k, v in DATA.items() if k != "cards"}
+    s = rc.render_card("nova-memory", d, PALETTES["dark"])
     parse(s)
-    assert "★" not in s
+    assert "★" not in s and "open source" in s
 
 
 def test_activity_one_bar_per_week_tallest_at_peak():
@@ -82,7 +94,7 @@ def test_activity_without_data_still_renders_stack():
 def test_bars_animate_and_no_external_refs():
     s = rc.render_activity(DATA, PALETTES["dark"])
     assert s.count("<animate") >= 2 * len(DATA["activity"]["weekly"])
-    for key in ("zango", "igris"):
+    for key in rc.PROJECTS:
         s += rc.render_card(key, DATA, PALETTES["light"])
     assert "https://" not in s and "http://" not in s.replace("http://www.w3.org", "")
 
