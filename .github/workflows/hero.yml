@@ -1,0 +1,62 @@
+name: Generate tmux hero
+
+on:
+  schedule:
+    - cron: "12 0 * * *"    # daily at 00:12 UTC
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check ACCESS_TOKEN
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: |
+          if [ -z "$ACCESS_TOKEN" ]; then
+            echo "::error::ACCESS_TOKEN secret is not set. Add a fine-grained PAT (permissions listed at the top of today.py)."
+            exit 1
+          fi
+          echo "token length: ${#ACCESS_TOKEN}, prefix: ${ACCESS_TOKEN:0:11}"
+          code=$(curl -s -o /tmp/me.json -w "%{http_code}" -H "Authorization: token $ACCESS_TOKEN" https://api.github.com/user)
+          if [ "$code" != "200" ]; then
+            echo "::error::GitHub rejected ACCESS_TOKEN (HTTP $code). Regenerate the token and re-run: gh secret set ACCESS_TOKEN"
+            cat /tmp/me.json
+            exit 1
+          fi
+          echo "token OK for $(python -c 'import json;print(json.load(open("/tmp/me.json"))["login"])')"
+
+      - name: Generate hero SVGs
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          USER_NAME: ${{ github.repository_owner }}
+        run: python today.py
+
+      - name: Commit updated cards
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A assets/*.svg cache
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: refresh profile SVGs [skip ci]"
+            git push
+          fi
