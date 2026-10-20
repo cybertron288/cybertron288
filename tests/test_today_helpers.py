@@ -46,3 +46,16 @@ def test_commits_from_events_truncates_and_limits():
 
 def test_commits_from_events_empty():
     assert today.commits_from_events([], "cybertron288", NOW) == []
+
+
+def test_activity_from_calendar():
+    weeks = [
+        {"contributionDays": [{"date": "2025-10-23", "contributionCount": 2}, {"date": "2025-10-24", "contributionCount": 0},
+                              {"date": "2025-10-25", "contributionCount": 1}]},
+        {"contributionDays": [{"date": "2025-10-26", "contributionCount": 5}, {"date": "2025-10-27", "contributionCount": 4}]},
+    ]
+    assert today.activity_from_calendar(weeks) == {"weekly": [3, 9], "total": 12, "start": "2025-10-23", "end": "2025-10-27"}
+
+
+def test_activity_from_calendar_empty():
+    assert today.activity_from_calendar([]) is None

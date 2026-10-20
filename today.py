@@ -13,6 +13,7 @@ import hashlib
 import argparse
 import json
 
+import render_cards
 import render_tmux
 
 # Fine-grained personal access token with All Repositories access:
@@ -20,7 +21,7 @@ import render_tmux
 # Repository permissions: read:Commit statuses, read:Contents, read:Metadata, read:Pull Requests
 HEADERS = {'authorization': 'token ' + os.environ.get('ACCESS_TOKEN', '')}
 USER_NAME = os.environ.get('USER_NAME', 'cybertron288')
-QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, 'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0, 'languages_getter': 0, 'events_getter': 0}
+QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, 'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0, 'languages_getter': 0, 'events_getter': 0, 'calendar_getter': 0, 'zango_getter': 0}
 
 
 def format_plural(unit):
@@ -402,6 +403,38 @@ def events_getter():
     return request.json()
 
 
+def activity_from_calendar(weeks):
+    """GraphQL contributionCalendar weeks -> {'weekly', 'total', 'start', 'end'} (None when empty)."""
+    days = [d for w in weeks for d in w['contributionDays']]
+    if not days:
+        return None
+    weekly = [sum(d['contributionCount'] for d in w['contributionDays']) for w in weeks]
+    return {'weekly': weekly, 'total': sum(weekly), 'start': days[0]['date'], 'end': days[-1]['date']}
+
+
+def calendar_getter():
+    query_count('calendar_getter')
+    query = '''
+    query ($login: String!) {
+        user(login: $login) {
+            contributionsCollection {
+                contributionCalendar { weeks { contributionDays { date contributionCount } } }
+            }
+        }
+    }'''
+    request = simple_request(calendar_getter.__name__, query, {'login': USER_NAME})
+    weeks = request.json()['data']['user']['contributionsCollection']['contributionCalendar']['weeks']
+    return activity_from_calendar(weeks)
+
+
+def zango_getter():
+    query_count('zango_getter')
+    query = '''
+    query { repository(owner: "Healthlane-Technologies", name: "Zango") { stargazerCount forkCount } }'''
+    repo = simple_request(zango_getter.__name__, query, {}).json()['data']['repository']
+    return {'stars': repo['stargazerCount'], 'forks': repo['forkCount']}
+
+
 def query_count(funct_id):
     global QUERY_COUNT
     QUERY_COUNT[funct_id] += 1
@@ -448,6 +481,10 @@ def build_data(now=None):
     formatter('languages', lang_time)
     events, events_time = perf_counter(events_getter)
     formatter('public events', events_time)
+    activity, cal_time = perf_counter(calendar_getter)
+    formatter('contribution calendar', cal_time)
+    zango, zango_time = perf_counter(zango_getter)
+    formatter('zango repo', zango_time)
     print('Total GitHub API calls:', '{:>3}'.format(sum(QUERY_COUNT.values())))
     for funct_name, count in QUERY_COUNT.items():
         print('{:<28}'.format('   ' + funct_name + ':'), '{:>6}'.format(count))
@@ -459,25 +496,35 @@ def build_data(now=None):
         'loc': {'add': total_loc[0], 'del': total_loc[1], 'net': total_loc[2]},
         'languages': languages,
         'commits_recent': commits_from_events(events, USER_NAME, now),
+        'activity': activity,
+        'zango': zango,
     }
 
 
 def write_hero(data, portrait_path='assets/portrait.json', out_dir='assets'):
-    """Render dark + light tmux hero SVGs; returns the written paths."""
+    """Render dark + light hero, project cards and activity strip; returns the written paths."""
     with open(portrait_path) as f:
         portrait = json.load(f)
     os.makedirs(out_dir, exist_ok=True)
     written = []
     for theme in ('dark', 'light'):
-        path = os.path.join(out_dir, f'tmux-{theme}.svg')
-        with open(path, 'w', encoding='utf-8') as f:
-            f.write(render_tmux.render(data, render_tmux.PALETTES[theme], portrait))
-        written.append(path)
+        pal = render_tmux.PALETTES[theme]
+        outputs = {
+            'tmux': render_tmux.render(data, pal, portrait),
+            'card-zango': render_cards.render_card('zango', data, pal),
+            'card-igris': render_cards.render_card('igris', data, pal),
+            'activity': render_cards.render_activity(data, pal),
+        }
+        for name, svg in outputs.items():
+            path = os.path.join(out_dir, f'{name}-{theme}.svg')
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(svg)
+            written.append(path)
     return written
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Generate the tmux-session hero SVGs for the profile README.')
+    parser = argparse.ArgumentParser(description='Generate the hero, project-card and activity SVGs for the profile README.')
     parser.add_argument('--render-only', metavar='DATA_JSON', help='skip GitHub queries; render from this data file')
     parser.add_argument('--out', default='assets', help='output directory (default: assets)')
     parser.add_argument('--portrait', default='assets/portrait.json')
