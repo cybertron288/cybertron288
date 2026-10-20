@@ -25,13 +25,13 @@ def test_repo_cards_show_live_stars_and_repo():
     assert "★ 0" in s and "WLED" in s
 
 
-def test_internal_card_has_status_no_stars():
-    s = rc.render_card("zango-setup-helper", DATA, PALETTES["dark"])
-    assert "internal" in s and "★" not in s and "building" not in s
+def test_zango_packages_card_has_status_no_stars():
+    s = rc.render_card("zango-packages", DATA, PALETTES["dark"])
+    assert "9 packages" in s and "@zango-core" in s and "★" not in s and "building" not in s
 
 
 def test_four_cards_two_repo_backed():
-    assert list(rc.PROJECTS) == ["igris", "nova-memory", "contrib-matrix", "zango-setup-helper"]
+    assert list(rc.PROJECTS) == ["zango-packages", "igris", "nova-memory", "contrib-matrix"]
     assert [k for k, v in rc.PROJECTS.items() if "repo" in v] == ["nova-memory", "contrib-matrix"]
 
 

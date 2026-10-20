@@ -20,6 +20,16 @@ BAR_H = 64
 FONT_STACK = 'ConsolasFallback, Consolas, &quot;JetBrains Mono&quot;, Menlo, monospace'
 
 PROJECTS = {
+    "zango-packages": {
+        "name": "zango packages",
+        "sub": "npm · @zango-core",
+        "desc": ["React + TypeScript packages for the Zango framework.",
+                 "Top committer on 9 @zango-core npm packages."],
+        "flow": ["crud", "appbuilder", "components", "create-zango-app"],
+        "hl": 0,
+        "meta": "rjsf · tanstack · vite · vitest · playwright · storybook",
+        "status": "9 packages · 44 releases",
+    },
     "igris": {
         "name": "igris",
         "sub": "igrisecurity.com",
@@ -49,16 +59,6 @@ PROJECTS = {
         "hl": 2,
         "meta": "typescript · hardware · ws2812b",
         "repo": "cybertron288/contrib-matrix",
-    },
-    "zango-setup-helper": {
-        "name": "zango setup helper",
-        "sub": "healthlane · desktop app",
-        "desc": ["Electron desktop app: 15+ manual CLI steps",
-                 "become a 7-step wizard for new Zango devs."],
-        "flow": ["wizard", "django · celery", "db sync", "xterm.js"],
-        "hl": 1,
-        "meta": "electron · react · bun · xterm.js",
-        "status": "internal",
     },
 }
 

@@ -15,10 +15,10 @@
 ### `work`
 
 <div align="center">
+<a href="https://www.npmjs.com/org/zango-core"><picture><source media="(prefers-color-scheme: dark)" srcset="./assets/card-zango-packages-dark.svg" /><source media="(prefers-color-scheme: light)" srcset="./assets/card-zango-packages-light.svg" /><img src="./assets/card-zango-packages-dark.svg" alt="zango packages: React + TypeScript packages for the Zango framework, top committer on 9 @zango-core npm packages" width="49%" /></picture></a>
 <a href="https://igrisecurity.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="./assets/card-igris-dark.svg" /><source media="(prefers-color-scheme: light)" srcset="./assets/card-igris-light.svg" /><img src="./assets/card-igris-dark.svg" alt="Igris: governance layer for AI agents, policy engine, audit trail and MCP access control" width="49%" /></picture></a>
 <a href="https://github.com/cybertron288/nova-memory"><picture><source media="(prefers-color-scheme: dark)" srcset="./assets/card-nova-memory-dark.svg" /><source media="(prefers-color-scheme: light)" srcset="./assets/card-nova-memory-light.svg" /><img src="./assets/card-nova-memory-dark.svg" alt="nova-memory: encrypted on-device memory for macOS, served to any LLM over MCP" width="49%" /></picture></a>
 <a href="https://github.com/cybertron288/contrib-matrix"><picture><source media="(prefers-color-scheme: dark)" srcset="./assets/card-contrib-matrix-dark.svg" /><source media="(prefers-color-scheme: light)" srcset="./assets/card-contrib-matrix-light.svg" /><img src="./assets/card-contrib-matrix-dark.svg" alt="contrib-matrix: GitHub contribution heatmap on a 16x8 WS2812B LED matrix via WLED" width="49%" /></picture></a>
-<picture><source media="(prefers-color-scheme: dark)" srcset="./assets/card-zango-setup-helper-dark.svg" /><source media="(prefers-color-scheme: light)" srcset="./assets/card-zango-setup-helper-light.svg" /><img src="./assets/card-zango-setup-helper-dark.svg" alt="zango setup helper: Electron desktop app that turns 15+ manual CLI steps into a 7-step wizard" width="49%" /></picture>
 </div>
 
 <div align="center">
