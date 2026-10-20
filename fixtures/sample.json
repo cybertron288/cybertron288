@@ -45,10 +45,6 @@
    "age": "5d"
   }
  ],
- "zango": {
-  "stars": 351,
-  "forks": 72
- },
  "activity": {
   "total": 3253,
   "start": "2025-10-19",
@@ -108,5 +104,15 @@
    121,
    110
   ]
+ },
+ "cards": {
+  "nova-memory": {
+   "stars": 1,
+   "forks": 0
+  },
+  "contrib-matrix": {
+   "stars": 0,
+   "forks": 0
+  }
  }
 }

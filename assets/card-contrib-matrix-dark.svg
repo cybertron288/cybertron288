@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="190" viewBox="0 0 440 190" font-family="ConsolasFallback, Consolas, &quot;JetBrains Mono&quot;, Menlo, monospace" font-size="11.5px" fill="#e6edf3">
+<style>@font-face {
+  src: local('Consolas'), local('Consolas Bold');
+  font-family: 'ConsolasFallback';
+  font-display: swap;
+  -webkit-size-adjust: 109%;
+  size-adjust: 109%;
+}
+text,tspan{white-space:pre}</style>
+<rect x="0.5" y="0.5" width="439" height="189" rx="10" fill="#161b22" stroke="#30363d"/>
+<text x="18" y="40" font-size="18px" font-weight="bold">contrib-matrix</text>
+<text x="179.2" y="40" font-size="10.5px" fill="#8b949e">cybertron288/contrib-matrix</text>
+<text x="422" y="38" font-size="10.5px" text-anchor="end" fill="#d29922">★ 0  ⑂ 0</text>
+<text x="18" y="68">GitHub contribution heatmap on a 16×8 WS2812B</text>
+<text x="18" y="86">LED matrix on the desk, driven by WLED.</text>
+<rect class="flow-box" x="18.0" y="104" width="77.0" height="24" rx="5" fill="#0d1117" stroke="#30363d"></rect>
+<text x="25.0" y="120" font-size="10.5px">github api</text>
+<text x="106.0" y="120" font-size="10.5px" text-anchor="middle" fill="#8b949e">→</text>
+<rect class="flow-box" x="117.0" y="104" width="58.1" height="24" rx="5" fill="#0d1117" stroke="#30363d"></rect>
+<text x="124.0" y="120" font-size="10.5px">heatmap</text>
+<text x="186.1" y="120" font-size="10.5px" text-anchor="middle" fill="#8b949e">→</text>
+<rect class="flow-box" x="197.1" y="104" width="39.2" height="24" rx="5" fill="#0d1117" stroke="#9370db"><animate attributeName="stroke-opacity" values="1;.35;1" dur="2.4s" repeatCount="indefinite"/></rect>
+<text x="204.1" y="120" font-size="10.5px" fill="#9370db">WLED</text>
+<text x="247.3" y="120" font-size="10.5px" text-anchor="middle" fill="#8b949e">→</text>
+<rect class="flow-box" x="258.3" y="104" width="70.7" height="24" rx="5" fill="#0d1117" stroke="#30363d"></rect>
+<text x="265.3" y="120" font-size="10.5px">16×8 leds</text>
+<line x1="18" y1="146" x2="422" y2="146" stroke="#30363d"/>
+<text x="18" y="170" fill="#8b949e">typescript · hardware · ws2812b</text>
+</svg>

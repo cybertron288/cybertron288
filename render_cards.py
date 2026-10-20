@@ -1,4 +1,4 @@
-"""Pure renderers for the README section under the hero: two project cards + a stack/activity strip.
+"""Pure renderers for the README section under the hero: four project cards + a stack/activity strip.
 
 No network, no files. `today.py` feeds real numbers; tests feed fixtures. Palettes come from render_tmux.
 Each card is its own SVG so the README can wrap each in a link.
@@ -20,14 +20,15 @@ BAR_H = 64
 FONT_STACK = 'ConsolasFallback, Consolas, &quot;JetBrains Mono&quot;, Menlo, monospace'
 
 PROJECTS = {
-    "zango": {
-        "name": "zango",
-        "sub": "Healthlane-Technologies/Zango",
-        "desc": ["Django meta-framework for enterprise business apps.",
-                 "Core contributor."],
-        "flow": ["tenant apps", "zango core", "django", "postgres"],
-        "hl": 1,
-        "meta": "runs at AstraZeneca · Pfizer · BMS · Roche · MSD",
+    "zango-packages": {
+        "name": "zango packages",
+        "sub": "@zango-core on npm",
+        "desc": ["React + TypeScript packages for the Zango framework.",
+                 "Owner and maintainer of 9 @zango-core npm packages."],
+        "flow": ["crud", "appbuilder", "components", "create-zango-app"],
+        "hl": 0,
+        "meta": "rjsf · tanstack · vite · vitest · playwright · storybook",
+        "status": "9 packages",
     },
     "igris": {
         "name": "igris",
@@ -37,6 +38,27 @@ PROJECTS = {
         "flow": ["agent", "policy ✓ / ✗", "LLM · MCP", "audit log"],
         "hl": 1,
         "meta": "policy engine · audit trail · MCP access",
+        "status": "● building",
+    },
+    "nova-memory": {
+        "name": "nova-memory",
+        "sub": "cybertron288/nova-memory",
+        "desc": ["Encrypted on-device memory for macOS, served",
+                 "to any LLM client over MCP. Finds open loops."],
+        "flow": ["capture", "encrypt", "on-device store", "LLM · MCP"],
+        "hl": 1,
+        "meta": "typescript · mcp · stays on the device",
+        "repo": "cybertron288/nova-memory",
+    },
+    "contrib-matrix": {
+        "name": "contrib-matrix",
+        "sub": "cybertron288/contrib-matrix",
+        "desc": ["GitHub contribution heatmap on a 16×8 WS2812B",
+                 "LED matrix on the desk, driven by WLED."],
+        "flow": ["github api", "heatmap", "WLED", "16×8 leds"],
+        "hl": 2,
+        "meta": "typescript · hardware · ws2812b",
+        "repo": "cybertron288/contrib-matrix",
     },
 }
 
@@ -58,6 +80,15 @@ def _svg_open(w, h, p):
     ]
 
 
+def header_span(key, data, p):
+    """(right edge of the subtitle, left edge of the corner badge) so tests can prove the header row never overlaps."""
+    proj = PROJECTS[key]
+    title_w = len(proj["name"]) * 18 * 0.6
+    sub_end = PAD + title_w + 10 + len(proj["sub"]) * CHAR_S
+    badge_start = CARD_W - PAD - len(_corner(key, data, p)[0]) * CHAR_S
+    return sub_end, badge_start
+
+
 def card_lines(key, data):
     """Every body-font line a card draws (used by tests to check fit)."""
     proj = PROJECTS[key]
@@ -65,13 +96,17 @@ def card_lines(key, data):
 
 
 def _corner(key, data, p):
-    """(text, fill, pulse) for the top-right badge."""
-    if key == "zango":
-        z = data.get("zango")
-        if not z:
+    """(text, fill, pulse) for the top-right badge: live stars for repo-backed cards, a status word otherwise."""
+    proj = PROJECTS[key]
+    if "repo" in proj:
+        r = (data.get("cards") or {}).get(key)
+        if not r:
             return "open source", p["muted"], False
-        return f'★ {z["stars"]:,}  ⑂ {z["forks"]:,}', p["yellow"], False
-    return "● building", p["green"], True
+        return f'★ {r["stars"]:,}  ⑂ {r["forks"]:,}', p["yellow"], False
+    status = proj.get("status", "")
+    if status.startswith("●"):
+        return status, p["green"], True
+    return status, p["muted"], False
 
 
 def render_card(key, data, palette):

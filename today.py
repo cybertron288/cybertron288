@@ -21,7 +21,7 @@ import render_tmux
 # Repository permissions: read:Commit statuses, read:Contents, read:Metadata, read:Pull Requests
 HEADERS = {'authorization': 'token ' + os.environ.get('ACCESS_TOKEN', '')}
 USER_NAME = os.environ.get('USER_NAME', 'cybertron288')
-QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, 'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0, 'languages_getter': 0, 'events_getter': 0, 'calendar_getter': 0, 'zango_getter': 0}
+QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, 'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0, 'languages_getter': 0, 'events_getter': 0, 'calendar_getter': 0, 'cards_getter': 0}
 
 
 def format_plural(unit):
@@ -427,12 +427,16 @@ def calendar_getter():
     return activity_from_calendar(weeks)
 
 
-def zango_getter():
-    query_count('zango_getter')
-    query = '''
-    query { repository(owner: "Healthlane-Technologies", name: "Zango") { stargazerCount forkCount } }'''
-    repo = simple_request(zango_getter.__name__, query, {}).json()['data']['repository']
-    return {'stars': repo['stargazerCount'], 'forks': repo['forkCount']}
+def cards_getter():
+    """Stars and forks for every repo-backed project card (render_cards.PROJECTS entries with a `repo`)."""
+    query_count('cards_getter')
+    repos = {key: proj['repo'] for key, proj in render_cards.PROJECTS.items() if 'repo' in proj}
+    parts = []
+    for i, (key, full) in enumerate(repos.items()):
+        owner, name = full.split('/')
+        parts.append(f'r{i}: repository(owner: "{owner}", name: "{name}") {{ stargazerCount forkCount }}')
+    data = simple_request(cards_getter.__name__, 'query { ' + ' '.join(parts) + ' }', {}).json()['data']
+    return {key: {'stars': data[f'r{i}']['stargazerCount'], 'forks': data[f'r{i}']['forkCount']} for i, key in enumerate(repos)}
 
 
 def query_count(funct_id):
@@ -483,8 +487,8 @@ def build_data(now=None):
     formatter('public events', events_time)
     activity, cal_time = perf_counter(calendar_getter)
     formatter('contribution calendar', cal_time)
-    zango, zango_time = perf_counter(zango_getter)
-    formatter('zango repo', zango_time)
+    cards, cards_time = perf_counter(cards_getter)
+    formatter('project cards', cards_time)
     print('Total GitHub API calls:', '{:>3}'.format(sum(QUERY_COUNT.values())))
     for funct_name, count in QUERY_COUNT.items():
         print('{:<28}'.format('   ' + funct_name + ':'), '{:>6}'.format(count))
@@ -497,7 +501,7 @@ def build_data(now=None):
         'languages': languages,
         'commits_recent': commits_from_events(events, USER_NAME, now),
         'activity': activity,
-        'zango': zango,
+        'cards': cards,
     }
 
 
@@ -511,9 +515,8 @@ def write_hero(data, portrait_path='assets/portrait.json', out_dir='assets'):
         pal = render_tmux.PALETTES[theme]
         outputs = {
             'tmux': render_tmux.render(data, pal, portrait),
-            'card-zango': render_cards.render_card('zango', data, pal),
-            'card-igris': render_cards.render_card('igris', data, pal),
             'activity': render_cards.render_activity(data, pal),
+            **{f'card-{key}': render_cards.render_card(key, data, pal) for key in render_cards.PROJECTS},
         }
         for name, svg in outputs.items():
             path = os.path.join(out_dir, f'{name}-{theme}.svg')
