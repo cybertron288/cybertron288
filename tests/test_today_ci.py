@@ -56,3 +56,45 @@ def test_graphql_post_does_not_retry_4xx(monkeypatch):
     monkeypatch.setattr(today.requests, "post", lambda *a, **k: (n.append(1), _Resp(401))[1])
     monkeypatch.setattr(today.time, "sleep", lambda s: None)
     assert today.graphql_post("query {}", {}).status_code == 401 and len(n) == 1
+
+
+def _push(repo, head, commits=None):
+    payload = {"head": head} if commits is None else {"head": head, "commits": commits}
+    return {"type": "PushEvent", "actor": {"login": "cybertron288"}, "repo": {"name": repo},
+            "created_at": "2026-10-19T20:00:00Z", "payload": payload}
+
+
+def test_fill_push_commits_looks_up_head_when_payload_has_no_commits(monkeypatch):
+    seen = []
+
+    def fake_get(url, **k):
+        seen.append(url)
+        return _Resp(200, data={"sha": "abc1234def", "commit": {"message": "feat: real message\n\nbody"}})
+    monkeypatch.setattr(today.requests, "get", fake_get)
+    events = [_push("cybertron288/igris", "abc1234def")]
+    today.fill_push_commits(events, "cybertron288")
+    assert seen == ["https://api.github.com/repos/cybertron288/igris/commits/abc1234def"]
+    assert events[0]["payload"]["commits"] == [{"sha": "abc1234def", "message": "feat: real message\n\nbody"}]
+
+
+def test_fill_push_commits_keeps_existing_commits_and_skips_failed_lookups(monkeypatch):
+    monkeypatch.setattr(today.requests, "get", lambda url, **k: _Resp(404))
+    kept = [{"sha": "1111111", "message": "already here"}]
+    events = [_push("a/b", "1111111", kept), _push("a/c", "2222222")]
+    today.fill_push_commits(events, "cybertron288")
+    assert events[0]["payload"]["commits"] == kept
+    assert "commits" not in events[1]["payload"]
+
+
+def test_fill_push_commits_caps_lookups(monkeypatch):
+    calls = []
+    monkeypatch.setattr(today.requests, "get", lambda url, **k: (calls.append(url), _Resp(404))[1])
+    today.fill_push_commits([_push("a/b", f"{i:07d}") for i in range(20)], "cybertron288", max_lookups=5)
+    assert len(calls) == 5
+
+
+def test_commits_from_events_skips_merge_commits():
+    events = [_push("a/b", "m", [{"sha": "m000000", "message": "Merge pull request #5 from x/y"}]),
+              _push("a/b", "f", [{"sha": "f000000", "message": "fix: real work"}])]
+    out = today.commits_from_events(events, "cybertron288", today._parse_iso("2026-10-20T20:00:00Z"))
+    assert [c["sha"] for c in out] == ["f000000"]

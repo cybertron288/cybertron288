@@ -5,7 +5,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./assets/tmux-dark.svg" />
   <source media="(prefers-color-scheme: light)" srcset="./assets/tmux-light.svg" />
-  <img src="./assets/tmux-dark.svg" alt="ravi@cybertron288 — tmux session: ASCII portrait, neofetch, languages, recent commits" width="100%" />
+  <img src="./assets/tmux-dark.svg" alt="ravi@cybertron288 — tmux session: name banner, neofetch, languages, recent commits" width="100%" />
 </picture>
 </a>
 </div>

@@ -6,7 +6,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 def test_render_only_writes_both_svgs(tmp_path):
     data = json.loads((ROOT / "fixtures/sample.json").read_text())
     import today
-    paths = today.write_hero(data, portrait_path=str(ROOT / "assets/portrait.json"), out_dir=str(tmp_path))
+    paths = today.write_hero(data, out_dir=str(tmp_path))
     assert sorted(pathlib.Path(p).name for p in paths) == sorted(
         f"{name}-{theme}.svg" for name in ("tmux", "activity", "card-igris", "card-nova-memory", "card-contrib-matrix", "card-zango-packages") for theme in ("dark", "light"))
     for p in paths:
