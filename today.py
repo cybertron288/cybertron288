@@ -359,6 +359,8 @@ def commits_from_events(events, login, now, limit=2):
             continue
         for commit in reversed(event['payload'].get('commits', [])):
             msg = commit['message'].split('\n', 1)[0]
+            if msg.startswith('Merge '):
+                continue
             if len(msg) > MSG_MAX:
                 msg = msg[:MSG_MAX - 1] + '…'
             out.append({'sha': commit['sha'][:7], 'msg': msg, 'repo': event['repo']['name'],
@@ -366,6 +368,25 @@ def commits_from_events(events, login, now, limit=2):
             if len(out) == limit:
                 return out
     return out
+
+
+def fill_push_commits(events, login, max_lookups=10):
+    """The events API dropped `commits` from PushEvent payloads; look up each push's head commit instead."""
+    lookups = 0
+    for event in events:
+        payload = event.get('payload', {})
+        if event.get('type') != 'PushEvent' or event.get('actor', {}).get('login') != login:
+            continue
+        if payload.get('commits') or not payload.get('head'):
+            continue
+        if lookups == max_lookups:
+            return events
+        lookups += 1
+        request = requests.get(f"https://api.github.com/repos/{event['repo']['name']}/commits/{payload['head']}", headers=HEADERS)
+        if request.status_code == 200:
+            commit = request.json()
+            payload['commits'] = [{'sha': commit['sha'], 'message': commit['commit']['message']}]
+    return events
 
 
 def languages_getter(cursor=None, edges=None):
@@ -400,7 +421,7 @@ def events_getter():
     if request.status_code != 200:
         print(f'events_getter: GitHub returned {request.status_code}; recent-commit rows will be blank')
         return []
-    return request.json()
+    return fill_push_commits(request.json(), USER_NAME)
 
 
 def activity_from_calendar(weeks):
@@ -505,16 +526,14 @@ def build_data(now=None):
     }
 
 
-def write_hero(data, portrait_path='assets/portrait.json', out_dir='assets'):
+def write_hero(data, out_dir='assets'):
     """Render dark + light hero, project cards and activity strip; returns the written paths."""
-    with open(portrait_path) as f:
-        portrait = json.load(f)
     os.makedirs(out_dir, exist_ok=True)
     written = []
     for theme in ('dark', 'light'):
         pal = render_tmux.PALETTES[theme]
         outputs = {
-            'tmux': render_tmux.render(data, pal, portrait),
+            'tmux': render_tmux.render(data, pal),
             'activity': render_cards.render_activity(data, pal),
             **{f'card-{key}': render_cards.render_card(key, data, pal) for key in render_cards.PROJECTS},
         }
@@ -530,12 +549,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate the hero, project-card and activity SVGs for the profile README.')
     parser.add_argument('--render-only', metavar='DATA_JSON', help='skip GitHub queries; render from this data file')
     parser.add_argument('--out', default='assets', help='output directory (default: assets)')
-    parser.add_argument('--portrait', default='assets/portrait.json')
     args = parser.parse_args()
     if args.render_only:
         with open(args.render_only) as f:
             hero_data = json.load(f)
     else:
         hero_data = build_data()
-    for written_path in write_hero(hero_data, args.portrait, args.out):
+    for written_path in write_hero(hero_data, args.out):
         print('wrote', written_path)

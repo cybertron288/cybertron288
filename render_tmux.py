@@ -1,4 +1,4 @@
-"""Pure renderer: data dict + palette + portrait runs -> tmux-styled hero SVG.
+"""Pure renderer: data dict + palette -> tmux-styled hero SVG.
 
 No network, no files. `today.py` feeds it real numbers; tests feed it fixtures.
 """
@@ -33,6 +33,18 @@ PROFILE = {
     "Contact": "ravipatel288.jobs@gmail.com · in/ravipatel8407",
     "Site": "ravip-portfolio.vercel.app · igrisecurity.com",
 }
+BANNER = [
+    " ██████╗  █████╗ ██╗   ██╗██╗",
+    " ██╔══██╗██╔══██╗██║   ██║██║",
+    " ██████╔╝███████║██║   ██║██║",
+    " ██╔══██╗██╔══██║╚██╗ ██╔╝██║",
+    " ██║  ██║██║  ██║ ╚████╔╝ ██║",
+    " ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚═╝",
+]
+BANNER_W = 290  # every row is stretched to this width so glyph widths from any fallback font line up
+BANNER_TOP, BANNER_LINE = 140, 17
+TAGLINE = [("m", "framework internals"), ("a", "↓"), ("v", "AI governance")]
+PROJECTS_LINE = "zango · igris · nova-memory"
 PROMPT_CMD = 'echo "framework internals → AI governance"'
 
 FONT_FACE = """@font-face {
@@ -68,18 +80,21 @@ def _pane_title(x, y, label, suffix, p):
     return _text(x, y, f'<tspan class="m">┌ </tspan><tspan class="a">{esc(label)}</tspan><tspan class="m"> ─ {esc(suffix)}</tspan>')
 
 
-def _portrait_pane(portrait, p):
-    parts = [_pane_title(PAD, TITLE_H + 20, "0:portrait", "cat ravi.ascii", p)]
-    cols = portrait["cols"]
-    cell_w, cell_h = portrait.get("cell", [5, 10])
-    top = TITLE_H + 34
-    width = cols * cell_w
-    parts.append(f'<g clip-path="url(#portrait-clip)" font-size="{cell_h - 1}px" font-weight="bold">')
-    for i, runs in enumerate(portrait["rows_runs"]):
-        spans = "".join(f'<tspan fill="{theme_color(color, p)}">{esc(text)}</tspan>' for text, color in runs)
-        parts.append(f'<text x="{PAD}" y="{top + i * cell_h}" textLength="{width}" lengthAdjust="spacing">{spans}</text>')
+def _banner_pane(p):
+    parts = [_pane_title(PAD, TITLE_H + 20, "0:banner", "figlet ravi", p),
+             f'<filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/>'
+             f'<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>',
+             f'<g class="banner" fill="{p["accent"]}" font-size="15px" filter="url(#glow)">']
+    for i, row in enumerate(BANNER):
+        parts.append(f'<text x="{PAD}" y="{BANNER_TOP + i * BANNER_LINE}" textLength="{BANNER_W}" lengthAdjust="spacingAndGlyphs" opacity="0">'
+                     f'{esc(row)}<animate attributeName="opacity" from="0" to="1" dur="0.4s" begin="{i * 0.08:.2f}s" fill="freeze"/></text>')
     parts.append("</g>")
-    return parts, top + len(portrait["rows_runs"]) * cell_h
+    y = BANNER_TOP + len(BANNER) * BANNER_LINE + 40
+    for i, (cls, text) in enumerate(TAGLINE):
+        parts.append(_text(PAD + 2 * CHAR, y + i * LINE, esc(text), cls=cls))
+    y += len(TAGLINE) * LINE + 16
+    parts.append(_text(PAD + 2 * CHAR, y, esc(PROJECTS_LINE), cls="m"))
+    return parts, y
 
 
 def _kv(x, y, key, value, key_w=9):
@@ -139,7 +154,7 @@ def _status_bar(data, p):
     ty = y0 + 22
     parts = [f'<rect x="0" y="{y0}" width="{W}" height="{STATUS_H}" fill="{p["accent"]}"/>']
     x = PAD
-    tabs = [(f'[{data["login"]}]', False), ("0:portrait", False), ("1:neofetch*", True), ("2:htop", False)]
+    tabs = [(f'[{data["login"]}]', False), ("0:banner", False), ("1:neofetch*", True), ("2:htop", False)]
     for label, active in tabs:
         w = (len(label) + 2) * CHAR
         if active:
@@ -163,7 +178,7 @@ def _left_footer(data, p, y):
     ]
 
 
-def render(data: dict, palette: dict, portrait: dict) -> str:
+def render(data: dict, palette: dict) -> str:
     p = palette
     out = [
         "<?xml version='1.0' encoding='UTF-8'?>",
@@ -171,7 +186,6 @@ def render(data: dict, palette: dict, portrait: dict) -> str:
         f'font-family="ConsolasFallback, Consolas, &quot;JetBrains Mono&quot;, Menlo, monospace" font-size="{FONT}px" fill="{p["fg"]}">',
         f"<style>{FONT_FACE}\n.k{{fill:{p['key']}}} .v{{fill:{p['value']}}} .m{{fill:{p['muted']}}} .a{{fill:{p['accent']}}} "
         f"text,tspan{{white-space:pre}}</style>",
-        f'<defs><clipPath id="portrait-clip"><rect x="0" y="{TITLE_H + 24}" width="{LEFT_W}" height="{H - STATUS_H - TITLE_H - 24 - 3 * LINE}"/></clipPath></defs>',
         f'<rect width="{W}" height="{H}" rx="8" fill="{p["bg"]}"/>',
         f'<rect x="0" y="0" width="{W}" height="{TITLE_H}" rx="8" fill="{p["pane"]}"/>',
         f'<rect x="0" y="{TITLE_H - 8}" width="{W}" height="8" fill="{p["pane"]}"/>',
@@ -181,9 +195,9 @@ def render(data: dict, palette: dict, portrait: dict) -> str:
         f'<line x1="{LEFT_W}" y1="{TITLE_H}" x2="{LEFT_W}" y2="{H - STATUS_H}"/>'
         f'<line x1="{LEFT_W}" y1="{SPLIT_Y}" x2="{W}" y2="{SPLIT_Y}"/></g>',
     ]
-    portrait_parts, portrait_bottom = _portrait_pane(portrait, p)
-    out += portrait_parts
-    out += _left_footer(data, p, portrait_bottom)
+    banner_parts, banner_bottom = _banner_pane(p)
+    out += banner_parts
+    out += _left_footer(data, p, banner_bottom)
     out += _neofetch_pane(data, p)
     out += _htop_pane(data, p)
     out += _status_bar(data, p)
