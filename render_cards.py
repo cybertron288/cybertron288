@@ -24,7 +24,7 @@ PROJECTS = {
         "name": "zango packages",
         "sub": "@zango-core on npm",
         "desc": ["React + TypeScript packages for the Zango framework.",
-                 "Top committer on 9 @zango-core npm packages."],
+                 "Owner and maintainer of 9 @zango-core npm packages."],
         "flow": ["crud", "appbuilder", "components", "create-zango-app"],
         "hl": 0,
         "meta": "rjsf · tanstack · vite · vitest · playwright · storybook",
