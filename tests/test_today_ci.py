@@ -24,3 +24,35 @@ def test_events_getter_reports_non_200(monkeypatch, capsys):
 def test_languages_from_edges_tolerates_null_languages():
     edges = [{"node": {"languages": None}}, {"node": {"languages": {"edges": [{"size": 10, "node": {"name": "Go"}}]}}}]
     assert today.languages_from_edges(edges) == [{"name": "Go", "pct": 100}]
+
+
+class _Resp:
+    def __init__(self, code, text="", data=None):
+        self.status_code, self.text, self._data = code, text, data or {}
+
+    def json(self):
+        return self._data
+
+
+def test_graphql_post_retries_on_5xx_then_succeeds(monkeypatch):
+    answers = [_Resp(502, "<html>502</html>"), _Resp(503), _Resp(200, data={"data": {}})]
+    calls, naps = [], []
+    monkeypatch.setattr(today.requests, "post", lambda *a, **k: (calls.append(k), answers.pop(0))[1])
+    monkeypatch.setattr(today.time, "sleep", naps.append)
+    r = today.graphql_post("query {}", {})
+    assert r.status_code == 200 and len(calls) == 3
+    assert naps == sorted(naps) and len(naps) == 2        # backed off before each retry, growing
+
+
+def test_graphql_post_gives_up_after_max_attempts(monkeypatch):
+    monkeypatch.setattr(today.requests, "post", lambda *a, **k: _Resp(502))
+    monkeypatch.setattr(today.time, "sleep", lambda s: None)
+    r = today.graphql_post("query {}", {}, attempts=3)
+    assert r.status_code == 502
+
+
+def test_graphql_post_does_not_retry_4xx(monkeypatch):
+    n = []
+    monkeypatch.setattr(today.requests, "post", lambda *a, **k: (n.append(1), _Resp(401))[1])
+    monkeypatch.setattr(today.time, "sleep", lambda s: None)
+    assert today.graphql_post("query {}", {}).status_code == 401 and len(n) == 1
