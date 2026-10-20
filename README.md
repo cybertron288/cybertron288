@@ -1,11 +1,13 @@
 <!-- cybertron288 · GitHub profile README · hero regenerated daily by today.py (.github/workflows/hero.yml) -->
 
 <div align="center">
+<a href="https://ravip-portfolio.vercel.app/">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./assets/tmux-dark.svg" />
   <source media="(prefers-color-scheme: light)" srcset="./assets/tmux-light.svg" />
   <img src="./assets/tmux-dark.svg" alt="ravi@cybertron288 — tmux session: ASCII portrait, neofetch, languages, recent commits" width="100%" />
 </picture>
+</a>
 </div>
 
 ---
@@ -66,6 +68,7 @@ Ravi Patel  —  SDE-2 @ Healthlane Technologies
 
 <div align="center">
 
+[![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://ravip-portfolio.vercel.app/)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ravipatel8407/)
 [![Email](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ravipatel288.jobs@gmail.com)
 [![Igris](https://img.shields.io/badge/Igris-9370DB?style=for-the-badge&logo=shieldsdotio&logoColor=white)](https://igrisecurity.com/)

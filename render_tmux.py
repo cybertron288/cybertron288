@@ -31,7 +31,7 @@ PROFILE = {
     "Web": "React, Next.js, Django, Node.js",
     "Human": "English, Hindi, Gujarati",
     "Contact": "ravipatel288.jobs@gmail.com · in/ravipatel8407",
-    "Site": "igrisecurity.com",
+    "Site": "ravip-portfolio.vercel.app · igrisecurity.com",
 }
 PROMPT_CMD = 'echo "framework internals → AI governance"'
 

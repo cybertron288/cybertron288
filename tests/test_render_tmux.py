@@ -73,3 +73,7 @@ def test_active_tab_text_uses_attribute_fill():
 
 def test_neofetch_values_fit_pane():
     assert all(v is None or len(v) <= 56 for v in rt.PROFILE.values())
+
+
+def test_portfolio_link_in_neofetch():
+    assert "ravip-portfolio.vercel.app" in svg()
