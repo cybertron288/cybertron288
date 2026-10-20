@@ -49,6 +49,12 @@ def test_card_flow_boxes_fit_inside_card():
             assert float(b.get("x")) >= rc.PAD and float(b.get("x")) + float(b.get("width")) <= rc.CARD_W - rc.PAD
 
 
+def test_card_header_title_sub_and_badge_do_not_overlap():
+    for key in rc.PROJECTS:
+        sub_end, badge_start = rc.header_span(key, DATA, PALETTES["dark"])
+        assert sub_end + 8 <= badge_start, key
+
+
 def test_card_text_lines_fit_inside_card():
     for key in rc.PROJECTS:
         for line in rc.card_lines(key, DATA):

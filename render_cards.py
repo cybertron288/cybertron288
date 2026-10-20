@@ -22,13 +22,13 @@ FONT_STACK = 'ConsolasFallback, Consolas, &quot;JetBrains Mono&quot;, Menlo, mon
 PROJECTS = {
     "zango-packages": {
         "name": "zango packages",
-        "sub": "npm · @zango-core",
+        "sub": "@zango-core on npm",
         "desc": ["React + TypeScript packages for the Zango framework.",
                  "Top committer on 9 @zango-core npm packages."],
         "flow": ["crud", "appbuilder", "components", "create-zango-app"],
         "hl": 0,
         "meta": "rjsf · tanstack · vite · vitest · playwright · storybook",
-        "status": "9 packages · 44 releases",
+        "status": "9 packages",
     },
     "igris": {
         "name": "igris",
@@ -78,6 +78,15 @@ def _svg_open(w, h, p):
         f'font-family="{FONT_STACK}" font-size="{FONT}px" fill="{p["fg"]}">',
         f"<style>{FONT_FACE}\ntext,tspan{{white-space:pre}}</style>",
     ]
+
+
+def header_span(key, data, p):
+    """(right edge of the subtitle, left edge of the corner badge) so tests can prove the header row never overlaps."""
+    proj = PROJECTS[key]
+    title_w = len(proj["name"]) * 18 * 0.6
+    sub_end = PAD + title_w + 10 + len(proj["sub"]) * CHAR_S
+    badge_start = CARD_W - PAD - len(_corner(key, data, p)[0]) * CHAR_S
+    return sub_end, badge_start
 
 
 def card_lines(key, data):
