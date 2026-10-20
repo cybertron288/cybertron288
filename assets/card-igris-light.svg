@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="190" viewBox="0 0 440 190" font-family="ConsolasFallback, Consolas, &quot;JetBrains Mono&quot;, Menlo, monospace" font-size="11.5px" fill="#1f2328">
+<style>@font-face {
+  src: local('Consolas'), local('Consolas Bold');
+  font-family: 'ConsolasFallback';
+  font-display: swap;
+  -webkit-size-adjust: 109%;
+  size-adjust: 109%;
+}
+text,tspan{white-space:pre}</style>
+<rect x="0.5" y="0.5" width="439" height="189" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<text x="18" y="40" font-size="18px" font-weight="bold">igris</text>
+<text x="82.0" y="40" font-size="10.5px" fill="#656d76">igrisecurity.com</text>
+<text x="422" y="38" font-size="10.5px" text-anchor="end" fill="#1a7f37">● building<animate attributeName="opacity" values="1;.35;1" dur="2s" repeatCount="indefinite"/></text>
+<text x="18" y="68">Governance layer for AI agents: policy engine,</text>
+<text x="18" y="86">audit trail and access control on LLM + MCP calls.</text>
+<rect class="flow-box" x="18.0" y="104" width="45.5" height="24" rx="5" fill="#ffffff" stroke="#d0d7de"></rect>
+<text x="25.0" y="120" font-size="10.5px">agent</text>
+<text x="74.5" y="120" font-size="10.5px" text-anchor="middle" fill="#656d76">→</text>
+<rect class="flow-box" x="85.5" y="104" width="89.6" height="24" rx="5" fill="#ffffff" stroke="#6f42c1"><animate attributeName="stroke-opacity" values="1;.35;1" dur="2.4s" repeatCount="indefinite"/></rect>
+<text x="92.5" y="120" font-size="10.5px" fill="#6f42c1">policy ✓ / ✗</text>
+<text x="186.1" y="120" font-size="10.5px" text-anchor="middle" fill="#656d76">→</text>
+<rect class="flow-box" x="197.1" y="104" width="70.7" height="24" rx="5" fill="#ffffff" stroke="#d0d7de"></rect>
+<text x="204.1" y="120" font-size="10.5px">LLM · MCP</text>
+<text x="278.8" y="120" font-size="10.5px" text-anchor="middle" fill="#656d76">→</text>
+<rect class="flow-box" x="289.8" y="104" width="70.7" height="24" rx="5" fill="#ffffff" stroke="#d0d7de"></rect>
+<text x="296.8" y="120" font-size="10.5px">audit log</text>
+<line x1="18" y1="146" x2="422" y2="146" stroke="#d0d7de"/>
+<text x="18" y="170" fill="#656d76">policy engine · audit trail · MCP access</text>
+</svg>

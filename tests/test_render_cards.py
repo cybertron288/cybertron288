@@ -1,0 +1,91 @@
+import json, pathlib
+from lxml import etree
+import render_cards as rc
+from render_tmux import PALETTES
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+DATA = json.loads((ROOT / "fixtures/sample.json").read_text())
+NS = "{http://www.w3.org/2000/svg}"
+
+
+def parse(s):
+    return etree.fromstring(s.encode())
+
+
+def test_cards_well_formed_and_sized():
+    for key in ("zango", "igris"):
+        root = parse(rc.render_card(key, DATA, PALETTES["dark"]))
+        assert root.get("width") == str(rc.CARD_W) and root.get("height") == str(rc.CARD_H)
+
+
+def test_zango_card_shows_live_stars_and_clients():
+    s = rc.render_card("zango", DATA, PALETTES["dark"])
+    assert "★ 351" in s and "AstraZeneca" in s and "Healthlane-Technologies/Zango" in s
+
+
+def test_igris_card_status_and_site():
+    s = rc.render_card("igris", DATA, PALETTES["dark"])
+    assert "building" in s and "igrisecurity.com" in s
+
+
+def test_card_flow_boxes_fit_inside_card():
+    for key in ("zango", "igris"):
+        root = parse(rc.render_card(key, DATA, PALETTES["dark"]))
+        boxes = root.xpath('//*[@class="flow-box"]')
+        assert len(boxes) == 4
+        for b in boxes:
+            assert float(b.get("x")) >= rc.PAD and float(b.get("x")) + float(b.get("width")) <= rc.CARD_W - rc.PAD
+
+
+def test_card_text_lines_fit_inside_card():
+    for key in ("zango", "igris"):
+        for line in rc.card_lines(key, DATA):
+            assert rc.PAD + len(line) * rc.CHAR <= rc.CARD_W - rc.PAD, line
+
+
+def test_card_without_zango_data_falls_back():
+    d = {k: v for k, v in DATA.items() if k != "zango"}
+    s = rc.render_card("zango", d, PALETTES["dark"])
+    parse(s)
+    assert "★" not in s
+
+
+def test_activity_one_bar_per_week_tallest_at_peak():
+    root = parse(rc.render_activity(DATA, PALETTES["dark"]))
+    bars = root.xpath('//*[@class="week"]')
+    weekly = DATA["activity"]["weekly"]
+    assert len(bars) == len(weekly)
+    heights = [float(b.get("height")) for b in bars]
+    assert heights.index(max(heights)) == weekly.index(max(weekly))
+    assert all(h > 0 for h in heights)
+
+
+def test_activity_caption_and_axis():
+    text = "".join(parse(rc.render_activity(DATA, PALETTES["dark"])).itertext())
+    assert "3,253 contributions" in text and "Oct ’25" in text and "Oct ’26" in text
+
+
+def test_activity_stack_tokens_fit_width():
+    root = parse(rc.render_activity(DATA, PALETTES["dark"]))
+    toks = root.xpath('//*[@class="tok"]')
+    assert len(toks) == sum(len(t) for _, t in rc.STACK)
+    for t in toks:
+        assert float(t.get("x")) + float(t.get("width")) <= rc.STRIP_W - rc.PAD
+
+
+def test_activity_without_data_still_renders_stack():
+    d = {k: v for k, v in DATA.items() if k != "activity"}
+    root = parse(rc.render_activity(d, PALETTES["light"]))
+    assert root.xpath('//*[@class="week"]') == [] and root.xpath('//*[@class="tok"]')
+
+
+def test_bars_animate_and_no_external_refs():
+    s = rc.render_activity(DATA, PALETTES["dark"])
+    assert s.count("<animate") >= 2 * len(DATA["activity"]["weekly"])
+    for key in ("zango", "igris"):
+        s += rc.render_card(key, DATA, PALETTES["light"])
+    assert "https://" not in s and "http://" not in s.replace("http://www.w3.org", "")
+
+
+def test_light_palette_differs():
+    assert rc.render_card("igris", DATA, PALETTES["dark"]) != rc.render_card("igris", DATA, PALETTES["light"])

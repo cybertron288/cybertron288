@@ -1,6 +1,112 @@
-{"login":"cybertron288","name":"Ravi Patel","generated":"2026-10-19",
- "uptime":"6 years, 2 months, 11 days","commits":1284,"stars":318,"repos":42,"contrib_repos":57,"followers":64,
- "loc":{"add":523178,"del":76902,"net":446276},
- "languages":[{"name":"Python","pct":46},{"name":"TypeScript","pct":31},{"name":"JavaScript","pct":14},{"name":"Other","pct":9}],
- "commits_recent":[{"sha":"a1f3c2e","msg":"feat(igris): policy evaluation for mcp tool calls","repo":"igris/policy-engine","age":"2d"},
-                   {"sha":"7b9e0d1","msg":"fix(zango): tenant-aware migrations on pg15","repo":"Healthlane-Technologies/Zango","age":"5d"}]}
+{
+ "login": "cybertron288",
+ "name": "Ravi Patel",
+ "generated": "2026-10-19",
+ "uptime": "6 years, 2 months, 11 days",
+ "commits": 1284,
+ "stars": 318,
+ "repos": 42,
+ "contrib_repos": 57,
+ "followers": 64,
+ "loc": {
+  "add": 523178,
+  "del": 76902,
+  "net": 446276
+ },
+ "languages": [
+  {
+   "name": "Python",
+   "pct": 46
+  },
+  {
+   "name": "TypeScript",
+   "pct": 31
+  },
+  {
+   "name": "JavaScript",
+   "pct": 14
+  },
+  {
+   "name": "Other",
+   "pct": 9
+  }
+ ],
+ "commits_recent": [
+  {
+   "sha": "a1f3c2e",
+   "msg": "feat(igris): policy evaluation for mcp tool calls",
+   "repo": "igris/policy-engine",
+   "age": "2d"
+  },
+  {
+   "sha": "7b9e0d1",
+   "msg": "fix(zango): tenant-aware migrations on pg15",
+   "repo": "Healthlane-Technologies/Zango",
+   "age": "5d"
+  }
+ ],
+ "zango": {
+  "stars": 351,
+  "forks": 72
+ },
+ "activity": {
+  "total": 3253,
+  "start": "2025-10-19",
+  "end": "2026-10-19",
+  "weekly": [
+   2,
+   1,
+   3,
+   29,
+   1,
+   9,
+   14,
+   3,
+   2,
+   64,
+   0,
+   17,
+   1,
+   9,
+   9,
+   36,
+   6,
+   1,
+   10,
+   0,
+   13,
+   355,
+   219,
+   73,
+   58,
+   81,
+   132,
+   147,
+   129,
+   145,
+   63,
+   6,
+   33,
+   24,
+   120,
+   314,
+   135,
+   4,
+   60,
+   8,
+   14,
+   25,
+   61,
+   63,
+   101,
+   33,
+   5,
+   39,
+   140,
+   25,
+   180,
+   121,
+   110
+  ]
+ }
+}
