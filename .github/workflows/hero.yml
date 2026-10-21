@@ -47,6 +47,7 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           USER_NAME: ${{ github.repository_owner }}
+          PYTHONUNBUFFERED: "1"
         run: python today.py
 
       - name: Commit updated cards

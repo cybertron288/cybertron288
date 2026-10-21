@@ -1,4 +1,5 @@
 import datetime, today
+import pytest
 
 
 def test_cache_builder_creates_missing_cache_dir(tmp_path, monkeypatch):
@@ -100,6 +101,20 @@ def test_commits_from_events_skips_merge_commits():
     assert [c["sha"] for c in out] == ["f000000"]
 
 
+def test_graphql_post_retries_on_timeout(monkeypatch):
+    answers = [today.requests.exceptions.ReadTimeout(), _Resp(200, data={"data": {}})]
+
+    def post(*a, **k):
+        assert k["timeout"] == today.REQUEST_TIMEOUT
+        item = answers.pop(0)
+        if isinstance(item, Exception):
+            raise item
+        return item
+    monkeypatch.setattr(today.requests, "post", post)
+    monkeypatch.setattr(today.time, "sleep", lambda s: None)
+    assert today.graphql_post("query {}", {}).status_code == 200
+
+
 def test_graphql_post_retries_connection_errors(monkeypatch):
     answers = [today.requests.exceptions.ConnectionError("reset"), _Resp(200, data={"data": {}})]
 
@@ -130,7 +145,7 @@ def test_cache_builder_keeps_finished_repos_when_crawl_dies(tmp_path, monkeypatc
     edges = [{"node": {"nameWithOwner": f"o/r{i}", "defaultBranchRef": {"target": {"history": {"totalCount": 5}}}}} for i in range(2)]
     calls = []
 
-    def fake_loc(owner, repo, data, comment):
+    def fake_loc(owner, repo, data, comment, deadline=None):
         calls.append(repo)
         if repo == "r1":
             raise today.requests.exceptions.ConnectionError("reset")
@@ -143,3 +158,31 @@ def test_cache_builder_keeps_finished_repos_when_crawl_dies(tmp_path, monkeypatc
     lines = next((tmp_path / "cache").glob("*.txt")).read_text().splitlines()
     assert lines[0].split()[1:] == ["5", "5", "10", "2"]    # r0 survived the crash
     assert lines[1].split()[1:] == ["0", "0", "0", "0"]     # r1 retried next run
+
+
+def _edge(name, total):
+    return {"node": {"nameWithOwner": name, "defaultBranchRef": {"target": {"history": {"totalCount": total}}}}}
+
+
+def test_cache_builder_stops_at_budget_and_keeps_stale_lines(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    crawled = []
+
+    def fake_loc(owner, repo_name, data, cache_comment, deadline=None):
+        if crawled:  # first repo eats the whole budget
+            raise today.LocBudgetExceeded(repo_name)
+        crawled.append(repo_name)
+        return 10, 4, 3
+    monkeypatch.setattr(today, "recursive_loc", fake_loc)
+    edges = [_edge("me/a", 5), _edge("me/b", 7)]
+    add, dele, net, cached = today.cache_builder(edges, 0, False)
+    assert (add, dele, net, cached) == (10, 4, 6, False)
+    lines = next((tmp_path / "cache").glob("*.txt")).read_text().splitlines()
+    assert lines[0].split()[1:] == ["5", "3", "10", "4"]
+    assert lines[1].split()[1:] == ["0", "0", "0", "0"]   # untouched, so the next run crawls it
+
+
+def test_recursive_loc_raises_once_past_deadline(monkeypatch):
+    monkeypatch.setattr(today.requests, "post", lambda *a, **k: pytest.fail("no request past the deadline"))
+    with pytest.raises(today.LocBudgetExceeded):
+        today.recursive_loc("me", "a", [], [], deadline=today.time.monotonic() - 1)

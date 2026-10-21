@@ -21,6 +21,10 @@ import render_tmux
 # Repository permissions: read:Commit statuses, read:Contents, read:Metadata, read:Pull Requests
 HEADERS = {'authorization': 'token ' + os.environ.get('ACCESS_TOKEN', '')}
 USER_NAME = os.environ.get('USER_NAME', 'cybertron288')
+REQUEST_TIMEOUT = 30  # seconds; a stalled connection must fail instead of hanging the job
+# Wall-clock budget for the LOC crawl. A fresh cache means walking every commit of every repo, which
+# outlasts the CI job; repos left over keep their stale cache line and are picked up on the next run.
+LOC_BUDGET = float(os.environ.get('LOC_BUDGET_SECONDS', 30 * 60))
 QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, 'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0, 'languages_getter': 0, 'events_getter': 0, 'calendar_getter': 0, 'cards_getter': 0}
 
 
@@ -29,20 +33,20 @@ def format_plural(unit):
 
 
 def graphql_post(query, variables, attempts=5):
-    """POST to the GraphQL API, retrying 5xx (gateway timeouts on heavy queries) and dropped connections with backoff."""
+    """POST to the GraphQL API, retrying 5xx, timeouts and dropped connections (heavy queries) with backoff."""
     for i in range(attempts):
         try:
-            request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables': variables}, headers=HEADERS)
-        except requests.exceptions.ConnectionError as err:
+            request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables': variables}, headers=HEADERS, timeout=REQUEST_TIMEOUT)
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             if i == attempts - 1:
                 raise
-            reason = f'connection error ({err})'
+            status = type(err).__name__
         else:
             if request.status_code < 500 or i == attempts - 1:
                 return request
-            reason = f'GraphQL returned {request.status_code}'
+            status = request.status_code
         wait = 2 ** (i + 1)
-        print(f'{reason}; retry {i + 1}/{attempts - 1} in {wait}s')
+        print(f'GraphQL returned {status}; retry {i + 1}/{attempts - 1} in {wait}s')
         time.sleep(wait)
     return request
 
@@ -104,7 +108,13 @@ def graph_repos_stars(count_type, owner_affiliation, cursor=None):
             return stars_counter(request.json()['data']['user']['repositories']['edges'])
 
 
-def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, deletion_total=0, my_commits=0, cursor=None):
+class LocBudgetExceeded(Exception):
+    pass
+
+
+def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, deletion_total=0, my_commits=0, cursor=None, deadline=None):
+    if deadline is not None and time.monotonic() > deadline:
+        raise LocBudgetExceeded(f'{owner}/{repo_name}')
     query_count('recursive_loc')
     query = '''
     query ($repo_name: String!, $owner: String!, $cursor: String) {
@@ -142,7 +152,7 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
     request = graphql_post(query, variables)
     if request.status_code == 200:
         if request.json()['data']['repository']['defaultBranchRef'] is not None:
-            return loc_counter_one_repo(owner, repo_name, data, cache_comment, request.json()['data']['repository']['defaultBranchRef']['target']['history'], addition_total, deletion_total, my_commits)
+            return loc_counter_one_repo(owner, repo_name, data, cache_comment, request.json()['data']['repository']['defaultBranchRef']['target']['history'], addition_total, deletion_total, my_commits, deadline)
         else:
             return 0
     force_close_file(data, cache_comment)
@@ -151,7 +161,7 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
     raise Exception('recursive_loc() has failed with a', request.status_code, request.text, QUERY_COUNT)
 
 
-def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, addition_total, deletion_total, my_commits):
+def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, addition_total, deletion_total, my_commits, deadline=None):
     for node in history['edges']:
         if node['node']['author']['user'] == OWNER_ID:
             my_commits += 1
@@ -161,7 +171,7 @@ def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, additio
     if history['edges'] == [] or not history['pageInfo']['hasNextPage']:
         return addition_total, deletion_total, my_commits
     else:
-        return recursive_loc(owner, repo_name, data, cache_comment, addition_total, deletion_total, my_commits, history['pageInfo']['endCursor'])
+        return recursive_loc(owner, repo_name, data, cache_comment, addition_total, deletion_total, my_commits, history['pageInfo']['endCursor'], deadline)
 
 
 def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None, edges=[]):
@@ -202,8 +212,10 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None,
         return cache_builder(edges + request.json()['data']['user']['repositories']['edges'], comment_size, force_cache)
 
 
-def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
+def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0, budget=None):
     cached = True
+    deadline = time.monotonic() + (LOC_BUDGET if budget is None else budget)
+    skipped = 0
     os.makedirs('cache', exist_ok=True)  # fresh CI checkouts have no cache dir yet
     filename = 'cache/' + hashlib.sha256(USER_NAME.encode('utf-8')).hexdigest() + '.txt'
     try:
@@ -231,11 +243,18 @@ def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
             try:
                 if int(commit_count) != edges[index]['node']['defaultBranchRef']['target']['history']['totalCount']:
                     owner, repo_name = edges[index]['node']['nameWithOwner'].split('/')
-                    loc = recursive_loc(owner, repo_name, data, cache_comment)
+                    try:
+                        loc = recursive_loc(owner, repo_name, data, cache_comment, deadline=deadline)
+                    except LocBudgetExceeded:
+                        skipped += 1
+                        continue
                     data[index] = repo_hash + ' ' + str(edges[index]['node']['defaultBranchRef']['target']['history']['totalCount']) + ' ' + str(loc[2]) + ' ' + str(loc[0]) + ' ' + str(loc[1]) + '\n'
                     write_cache(filename, cache_comment, data)  # a crash later in the crawl keeps this repo's count
             except TypeError:
                 data[index] = repo_hash + ' 0 0 0 0\n'
+    if skipped:
+        cached = False
+        print(f'LOC budget used up; {skipped} repo(s) left for the next run')
     write_cache(filename, cache_comment, data)
     for line in data:
         loc = line.split()
@@ -394,7 +413,7 @@ def fill_push_commits(events, login, max_lookups=10):
         if lookups == max_lookups:
             return events
         lookups += 1
-        request = requests.get(f"https://api.github.com/repos/{event['repo']['name']}/commits/{payload['head']}", headers=HEADERS)
+        request = requests.get(f"https://api.github.com/repos/{event['repo']['name']}/commits/{payload['head']}", headers=HEADERS, timeout=REQUEST_TIMEOUT)
         if request.status_code == 200:
             commit = request.json()
             payload['commits'] = [{'sha': commit['sha'], 'message': commit['commit']['message']}]
@@ -429,7 +448,7 @@ def languages_getter(cursor=None, edges=None):
 
 def events_getter():
     query_count('events_getter')
-    request = requests.get(f'https://api.github.com/users/{USER_NAME}/events/public?per_page=100', headers=HEADERS)
+    request = requests.get(f'https://api.github.com/users/{USER_NAME}/events/public?per_page=100', headers=HEADERS, timeout=REQUEST_TIMEOUT)
     if request.status_code != 200:
         print(f'events_getter: GitHub returned {request.status_code}; recent-commit rows will be blank')
         return []
