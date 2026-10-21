@@ -27,7 +27,7 @@ PROFILE = {
     "Core": "Zango — Django framework (AZ, Pfizer, BMS, Roche, MSD)",
     "Building": "Igris — governance for AI agents (policy · audit · MCP)",
     "Uptime": None,  # filled from data["uptime"]
-    "Langs": "Python, TypeScript, JavaScript",
+    "Langs": "TypeScript, JavaScript, Python",
     "Web": "React, Next.js, Django, Node.js",
     "Human": "English, Hindi, Gujarati",
     "Contact": "ravipatel288.jobs@gmail.com · in/ravipatel8407",
@@ -114,13 +114,21 @@ def _neofetch_pane(data, p):
     return parts
 
 
+LANG_ORDER = {"TypeScript": 0, "JavaScript": 1, "Python": 3}  # display order; unlisted languages sit before Python
+
+
+def ordered_languages(languages):
+    """Top 4 by size, shown TypeScript, JavaScript, others, then Python."""
+    return sorted(languages[:4], key=lambda lang: LANG_ORDER.get(lang["name"], 2))
+
+
 def _htop_pane(data, p):
     x = LEFT_W + PAD
     y = SPLIT_Y + 20
     parts = [_pane_title(x, y, "2:htop", "languages · public repos", p)]
     y += LINE + 2
     track_x = x + 12 * CHAR
-    for i, lang in enumerate(data["languages"][:4]):
+    for i, lang in enumerate(ordered_languages(data["languages"])):
         w = round(TRACK_W * lang["pct"] / 100, 1)
         parts.append(_text(x, y, esc(lang["name"][:11])))
         parts.append(f'<rect x="{track_x:.0f}" y="{y - 9}" width="{TRACK_W}" height="9" rx="1" fill="{p["pane"]}" stroke="{p["border"]}"/>')

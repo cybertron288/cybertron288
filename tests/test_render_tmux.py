@@ -26,7 +26,7 @@ def test_language_bars_proportional():
     bars = root.xpath('//*[@class="bar-fill"]')
     assert len(bars) == 4
     widths = [float(b.get("width")) for b in bars]
-    assert abs(widths[0] / widths[1] - 46 / 31) < 0.02
+    assert abs(widths[0] / widths[-1] - 31 / 46) < 0.02    # TypeScript first, Python last
 
 
 def test_smil_animations_present():
@@ -96,3 +96,9 @@ def test_neofetch_values_fit_pane():
 
 def test_portfolio_link_in_neofetch():
     assert "ravip-portfolio.vercel.app" in svg()
+
+
+def test_languages_ordered_python_last():
+    langs = [{"name": n, "pct": p} for n, p in (("Python", 46), ("TypeScript", 31), ("CSS", 9), ("JavaScript", 14), ("Shell", 1))]
+    assert [l["name"] for l in rt.ordered_languages(langs)] == ["TypeScript", "JavaScript", "CSS", "Python"]
+    assert "TypeScript, JavaScript, Python" in svg()
