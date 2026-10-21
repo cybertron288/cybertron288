@@ -115,6 +115,51 @@ def test_graphql_post_retries_on_timeout(monkeypatch):
     assert today.graphql_post("query {}", {}).status_code == 200
 
 
+def test_graphql_post_retries_connection_errors(monkeypatch):
+    answers = [today.requests.exceptions.ConnectionError("reset"), _Resp(200, data={"data": {}})]
+
+    def post(*a, **k):
+        item = answers.pop(0)
+        if isinstance(item, Exception):
+            raise item
+        return item
+    monkeypatch.setattr(today.requests, "post", post)
+    monkeypatch.setattr(today.time, "sleep", lambda s: None)
+    assert today.graphql_post("query {}", {}).status_code == 200
+
+
+def test_graphql_post_raises_connection_error_after_last_attempt(monkeypatch):
+    def post(*a, **k):
+        raise today.requests.exceptions.ConnectionError("down")
+    monkeypatch.setattr(today.requests, "post", post)
+    monkeypatch.setattr(today.time, "sleep", lambda s: None)
+    try:
+        today.graphql_post("query {}", {}, attempts=2)
+    except today.requests.exceptions.ConnectionError:
+        return
+    raise AssertionError("expected ConnectionError")
+
+
+def test_cache_builder_keeps_finished_repos_when_crawl_dies(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    edges = [{"node": {"nameWithOwner": f"o/r{i}", "defaultBranchRef": {"target": {"history": {"totalCount": 5}}}}} for i in range(2)]
+    calls = []
+
+    def fake_loc(owner, repo, data, comment, deadline=None):
+        calls.append(repo)
+        if repo == "r1":
+            raise today.requests.exceptions.ConnectionError("reset")
+        return (10, 2, 5)
+    monkeypatch.setattr(today, "recursive_loc", fake_loc)
+    try:
+        today.cache_builder(edges, 0, False)
+    except today.requests.exceptions.ConnectionError:
+        pass
+    lines = next((tmp_path / "cache").glob("*.txt")).read_text().splitlines()
+    assert lines[0].split()[1:] == ["5", "5", "10", "2"]    # r0 survived the crash
+    assert lines[1].split()[1:] == ["0", "0", "0", "0"]     # r1 retried next run
+
+
 def _edge(name, total):
     return {"node": {"nameWithOwner": name, "defaultBranchRef": {"target": {"history": {"totalCount": total}}}}}
 
@@ -141,3 +186,34 @@ def test_recursive_loc_raises_once_past_deadline(monkeypatch):
     monkeypatch.setattr(today.requests, "post", lambda *a, **k: pytest.fail("no request past the deadline"))
     with pytest.raises(today.LocBudgetExceeded):
         today.recursive_loc("me", "a", [], [], deadline=today.time.monotonic() - 1)
+
+
+def test_recursive_loc_walks_long_history_without_recursion(monkeypatch):
+    pages = 2000                                         # deeper than Python's default recursion limit
+    seen = []
+
+    def post(query, variables, attempts=5):
+        seen.append(variables["cursor"])
+        n = len(seen)
+        history = {"edges": [{"node": {"author": {"user": "me-id"}, "additions": 3, "deletions": 1}}],
+                   "pageInfo": {"endCursor": f"c{n}", "hasNextPage": n < pages}}
+        return _Resp(200, data={"data": {"repository": {"defaultBranchRef": {"target": {"history": history}}}}})
+    monkeypatch.setattr(today, "graphql_post", post)
+    monkeypatch.setattr(today, "OWNER_ID", "me-id")
+    assert today.recursive_loc("me", "big", [], []) == (3 * pages, pages, pages)
+    assert seen[:2] == [None, "c1"]
+
+
+def test_stars_counter_skips_repos_without_stargazers(capsys):
+    edges = [{"node": {"nameWithOwner": "me/a", "stargazers": {"totalCount": 4}}},
+             {"node": {"nameWithOwner": "me/hidden", "stargazers": None}},
+             {"node": None}]
+    assert today.stars_counter(edges) == 4
+    assert "me/hidden" in capsys.readouterr().out
+
+
+def test_workflow_commits_cache_even_when_render_fails():
+    import pathlib
+    wf = (pathlib.Path(__file__).resolve().parents[1] / ".github/workflows/hero.yml").read_text()
+    commit_step = wf[wf.index("- name: Commit updated cards"):]
+    assert "if: always()" in commit_step.split("run:")[0]

@@ -51,6 +51,7 @@ jobs:
         run: python today.py
 
       - name: Commit updated cards
+        if: always()  # keep LOC cache progress from a failed or timed-out run
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
