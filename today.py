@@ -113,9 +113,10 @@ class LocBudgetExceeded(Exception):
 
 
 def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, deletion_total=0, my_commits=0, cursor=None, deadline=None):
-    if deadline is not None and time.monotonic() > deadline:
-        raise LocBudgetExceeded(f'{owner}/{repo_name}')
-    query_count('recursive_loc')
+    """Tally my additions, deletions and commits across a repo's default-branch history, one 100-commit page at a time.
+
+    A loop, not recursion: repos with long histories run to thousands of pages, past Python's recursion limit.
+    """
     query = '''
     query ($repo_name: String!, $owner: String!, $cursor: String) {
         repository(name: $repo_name, owner: $owner) {
@@ -148,30 +149,33 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
             }
         }
     }'''
-    variables = {'repo_name': repo_name, 'owner': owner, 'cursor': cursor}
-    request = graphql_post(query, variables)
-    if request.status_code == 200:
-        if request.json()['data']['repository']['defaultBranchRef'] is not None:
-            return loc_counter_one_repo(owner, repo_name, data, cache_comment, request.json()['data']['repository']['defaultBranchRef']['target']['history'], addition_total, deletion_total, my_commits, deadline)
-        else:
+    while True:
+        if deadline is not None and time.monotonic() > deadline:
+            raise LocBudgetExceeded(f'{owner}/{repo_name}')
+        query_count('recursive_loc')
+        request = graphql_post(query, {'repo_name': repo_name, 'owner': owner, 'cursor': cursor})
+        if request.status_code != 200:
+            force_close_file(data, cache_comment)
+            if request.status_code == 403:
+                raise Exception('Too many requests in a short amount of time!\nYou\'ve hit the non-documented anti-abuse limit!')
+            raise Exception('recursive_loc() has failed with a', request.status_code, request.text, QUERY_COUNT)
+        branch = request.json()['data']['repository']['defaultBranchRef']
+        if branch is None:
             return 0
-    force_close_file(data, cache_comment)
-    if request.status_code == 403:
-        raise Exception('Too many requests in a short amount of time!\nYou\'ve hit the non-documented anti-abuse limit!')
-    raise Exception('recursive_loc() has failed with a', request.status_code, request.text, QUERY_COUNT)
+        history = branch['target']['history']
+        addition_total, deletion_total, my_commits = loc_counter_one_page(history, addition_total, deletion_total, my_commits)
+        if history['edges'] == [] or not history['pageInfo']['hasNextPage']:
+            return addition_total, deletion_total, my_commits
+        cursor = history['pageInfo']['endCursor']
 
 
-def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, addition_total, deletion_total, my_commits, deadline=None):
+def loc_counter_one_page(history, addition_total, deletion_total, my_commits):
     for node in history['edges']:
         if node['node']['author']['user'] == OWNER_ID:
             my_commits += 1
             addition_total += node['node']['additions']
             deletion_total += node['node']['deletions']
-
-    if history['edges'] == [] or not history['pageInfo']['hasNextPage']:
-        return addition_total, deletion_total, my_commits
-    else:
-        return recursive_loc(owner, repo_name, data, cache_comment, addition_total, deletion_total, my_commits, history['pageInfo']['endCursor'], deadline)
+    return addition_total, deletion_total, my_commits
 
 
 def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None, edges=[]):
@@ -291,7 +295,11 @@ def force_close_file(data, cache_comment):
 def stars_counter(data):
     total_stars = 0
     for node in data:
-        total_stars += node['node']['stargazers']['totalCount']
+        repo = node.get('node') or {}
+        if repo.get('stargazers') is None:  # the token can't see this repo's stargazers; count it as 0
+            print('stars_counter: no stargazers for', repo.get('nameWithOwner', 'an unreadable repo'))
+            continue
+        total_stars += repo['stargazers']['totalCount']
     return total_stars
 
 

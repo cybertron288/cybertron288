@@ -186,3 +186,34 @@ def test_recursive_loc_raises_once_past_deadline(monkeypatch):
     monkeypatch.setattr(today.requests, "post", lambda *a, **k: pytest.fail("no request past the deadline"))
     with pytest.raises(today.LocBudgetExceeded):
         today.recursive_loc("me", "a", [], [], deadline=today.time.monotonic() - 1)
+
+
+def test_recursive_loc_walks_long_history_without_recursion(monkeypatch):
+    pages = 2000                                         # deeper than Python's default recursion limit
+    seen = []
+
+    def post(query, variables, attempts=5):
+        seen.append(variables["cursor"])
+        n = len(seen)
+        history = {"edges": [{"node": {"author": {"user": "me-id"}, "additions": 3, "deletions": 1}}],
+                   "pageInfo": {"endCursor": f"c{n}", "hasNextPage": n < pages}}
+        return _Resp(200, data={"data": {"repository": {"defaultBranchRef": {"target": {"history": history}}}}})
+    monkeypatch.setattr(today, "graphql_post", post)
+    monkeypatch.setattr(today, "OWNER_ID", "me-id")
+    assert today.recursive_loc("me", "big", [], []) == (3 * pages, pages, pages)
+    assert seen[:2] == [None, "c1"]
+
+
+def test_stars_counter_skips_repos_without_stargazers(capsys):
+    edges = [{"node": {"nameWithOwner": "me/a", "stargazers": {"totalCount": 4}}},
+             {"node": {"nameWithOwner": "me/hidden", "stargazers": None}},
+             {"node": None}]
+    assert today.stars_counter(edges) == 4
+    assert "me/hidden" in capsys.readouterr().out
+
+
+def test_workflow_commits_cache_even_when_render_fails():
+    import pathlib
+    wf = (pathlib.Path(__file__).resolve().parents[1] / ".github/workflows/hero.yml").read_text()
+    commit_step = wf[wf.index("- name: Commit updated cards"):]
+    assert "if: always()" in commit_step.split("run:")[0]
