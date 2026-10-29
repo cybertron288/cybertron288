@@ -35,7 +35,7 @@
 <text x="344" y="94"><tspan class="k">Role</tspan><tspan class="m"> ..... </tspan><tspan class="v">SDE-2 · Healthlane Technologies</tspan></text>
 <text x="344" y="113"><tspan class="k">Core</tspan><tspan class="m"> ..... </tspan><tspan class="v">Zango — Django framework (AZ, Pfizer, BMS, Roche, MSD)</tspan></text>
 <text x="344" y="132"><tspan class="k">Building</tspan><tspan class="m"> . </tspan><tspan class="v">Igris — governance for AI agents (policy · audit · MCP)</tspan></text>
-<text x="344" y="151"><tspan class="k">Uptime</tspan><tspan class="m"> ... </tspan><tspan class="v">8 years, 6 months, 16 days</tspan></text>
+<text x="344" y="151"><tspan class="k">Uptime</tspan><tspan class="m"> ... </tspan><tspan class="v">8 years, 6 months, 17 days</tspan></text>
 <text x="344" y="170"><tspan class="k">Langs</tspan><tspan class="m"> .... </tspan><tspan class="v">TypeScript, JavaScript, Python</tspan></text>
 <text x="344" y="189"><tspan class="k">Web</tspan><tspan class="m"> ...... </tspan><tspan class="v">React, Next.js, Django, Node.js</tspan></text>
 <text x="344" y="208"><tspan class="k">Human</tspan><tspan class="m"> .... </tspan><tspan class="v">English, Hindi, Gujarati</tspan></text>
@@ -58,8 +58,8 @@
 <rect x="430" y="367" width="300" height="9" rx="1" fill="#161b22" stroke="#30363d"/>
 <rect class="bar-fill" x="430" y="367" width="21.0" height="9" rx="1" fill="#9370db"><animate attributeName="width" from="0" to="21.0" dur="1.2s" begin="0.45s" fill="freeze"/></rect>
 <text x="774" y="376" class="m" text-anchor="end">7%</text>
-<text x="344" y="401"><tspan fill="#d29922">820996a</tspan> cc-model-router: Haiku classifies every typed prompt alon…<tspan class="m"> · 1d</tspan></text>
-<text x="344" y="420"><tspan fill="#d29922">6bef09e</tspan> cc-model-router: bring design and plan docs up to date wi…<tspan class="m"> · 1d</tspan></text>
+<text x="344" y="401"><tspan fill="#d29922">820996a</tspan> cc-model-router: Haiku classifies every typed prompt alon…<tspan class="m"> · 2d</tspan></text>
+<text x="344" y="420"><tspan fill="#d29922">6bef09e</tspan> cc-model-router: bring design and plan docs up to date wi…<tspan class="m"> · 2d</tspan></text>
 <clipPath id="prompt-clip"><rect x="495.2" y="429" width="0" height="19"><animate attributeName="width" from="0" to="306.4" dur="2.4s" begin="0.8s" fill="freeze"/></rect></clipPath>
 <text x="344" y="443"><tspan fill="#3fb950">ravi@cybertron288</tspan>:<tspan fill="#58a6ff">~</tspan>$ </text>
 <text x="495.2" y="443" clip-path="url(#prompt-clip)">echo &quot;framework internals → AI governance&quot;</text>
@@ -70,5 +70,5 @@
 <rect x="216" y="512" width="94" height="22" rx="2" fill="#e6edf3"/>
 <text x="223" y="528" fill="#0d1117" font-weight="bold">1:neofetch*</text>
 <text x="324" y="528" fill="#0d1117">2:htop</text>
-<text x="886" y="528" fill="#0d1117" text-anchor="end">542 commits · 0★ · 29 followers · 2026-10-28</text>
+<text x="886" y="528" fill="#0d1117" text-anchor="end">542 commits · 0★ · 29 followers · 2026-10-29</text>
 </svg>
